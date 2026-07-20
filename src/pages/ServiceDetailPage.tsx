@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, CheckCircle2, ListPlus, Play } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Calculator, CheckCircle2, ListPlus, Play } from "lucide-react";
 import { getIndustry, getService } from "../data/catalog";
 import { MODULE_TEMPLATES } from "../data/serviceTemplates";
 import { Icon, MODULE_ICONS } from "../components/common/Icon";
@@ -79,6 +79,12 @@ export function ServiceDetailPage() {
             <ListPlus className="h-4 w-4" /> Add to selected solutions
           </button>
         </div>
+        <button
+          onClick={() => navigate(`/pricing/new?service=${service.id}`)}
+          className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 text-sm font-medium text-slate-600 hover:bg-slate-50"
+        >
+          <Calculator className="h-4 w-4" /> Add to estimate — open Pricing Configurator
+        </button>
       </header>
 
       <Section title="The business problem">

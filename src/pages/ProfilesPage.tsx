@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { CheckCircle2, Copy, Pencil, Plus, Trash2, UserRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Calculator, CheckCircle2, Copy, Pencil, Plus, Trash2, UserRound } from "lucide-react";
 import type { ClientProfile } from "../types";
 import { INDUSTRIES, getIndustry } from "../data/catalog";
 import { useApp } from "../store/AppStore";
@@ -30,6 +31,7 @@ const emptyProfile = (): ClientProfile => ({
 export function ProfilesPage() {
   const { profiles, activeProfileId, setActiveProfile, saveProfile, deleteProfile, duplicateProfile } = useApp();
   const toast = useToast();
+  const navigate = useNavigate();
   const [editing, setEditing] = useState<ClientProfile | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<ClientProfile | null>(null);
 
@@ -102,6 +104,9 @@ export function ProfilesPage() {
                   >
                     {active ? "Deselect" : "Set active"}
                   </button>
+                  <IconBtn label="Create estimate for this client" onClick={() => navigate(`/pricing/new?client=${p.id}`)}>
+                    <Calculator className="h-4 w-4" />
+                  </IconBtn>
                   <IconBtn label="Edit" onClick={() => setEditing(p)}>
                     <Pencil className="h-4 w-4" />
                   </IconBtn>

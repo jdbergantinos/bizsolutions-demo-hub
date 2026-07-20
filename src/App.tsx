@@ -11,6 +11,10 @@ import { PresentationPage } from "./pages/PresentationPage";
 import { ProfilesPage } from "./pages/ProfilesPage";
 import { FavoritesPage } from "./pages/FavoritesPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { PricingListPage } from "./pricing/pages/PricingListPage";
+import { PricingConfiguratorPage } from "./pricing/pages/PricingConfiguratorPage";
+import { EstimateViewPage } from "./pricing/pages/EstimateViewPage";
+import { PricingAdminPage } from "./pricing/pages/PricingAdminPage";
 import { EmptyState } from "./components/common/EmptyState";
 
 export default function App() {
@@ -27,6 +31,10 @@ export default function App() {
           <Route path="demos" element={<DemoModulesPage />} />
           <Route path="demo/module/:moduleType" element={<ModuleDemoPage />} />
           <Route path="demo/:serviceId" element={<ServiceDemoPage />} />
+          <Route path="pricing" element={<PricingListPage />} />
+          <Route path="pricing/new" element={<PricingConfiguratorPage />} />
+          <Route path="pricing/estimate/:estimateId" element={<EstimateViewPage />} />
+          <Route path="pricing/admin" element={<PricingAdminPage />} />
           <Route path="solutions" element={<SolutionsPage />} />
           <Route path="present" element={<PresentationPage />} />
           <Route path="profiles" element={<ProfilesPage />} />

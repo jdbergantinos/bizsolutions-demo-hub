@@ -55,6 +55,12 @@ Host the `dist/` folder on any static host (HTTPS required for PWA install).
 
 ---
 
+## Running tests
+
+```bash
+npm test             # vitest — pricing-engine unit tests
+```
+
 ## Project structure
 
 ```
@@ -91,6 +97,34 @@ There is **no separate app per service offer**. Instead:
 4. `DemoHost` (`src/demos/DemoHost.tsx`) provides all shared behavior: create/edit/delete,
    search/filter/sort, status changes, assignment, notes, line items, activity history,
    toasts, confirmation dialogs, and reset.
+
+## Solution & Pricing Configurator
+
+The Pricing Configurator (`/pricing` navigation item) builds **preliminary, range-based
+estimates** from the same catalog the demos use. Every service offer is priceable.
+
+- **Routes**: `/pricing` (estimate list), `/pricing/new` (8-step wizard),
+  `/pricing/estimate/:id` (estimate with Client/Internal views and packages),
+  `/pricing/admin` (settings + editable pricing rules + JSON export/import).
+- **Entry points**: Industry detail ("Create estimate", "View recommended package"),
+  Service detail ("Add to estimate"), Selected Solutions ("Estimate selected solutions"),
+  Client Profiles (calculator button), Presentation Mode (attach an estimate; client
+  view only).
+- **Architecture**: `src/pricing/` — `config/` holds all editable seed values (delivery
+  models, configuration levels, business sizes, per-module prices, 45 optional services,
+  support plans, industry risk); `engine/` holds pure calculation functions
+  (unit-tested); `store/pricingStorage.ts` persists everything under the
+  `bizsolutions.pricing.*` localStorage keys with schema versioning.
+- **Editing prices**: use Pricing Administration in the app (stored on-device), or edit
+  the seed files in `src/pricing/config/` and rebuild. **All seed amounts are internal
+  placeholders (`pricingSource: "Internal placeholder — owner verification required"`)
+  — review them before using estimates with real clients.**
+- **Safety**: estimates are labeled preliminary and are not binding quotations; sensitive
+  selections (lending, government, high-risk services, payment/custom integrations,
+  source-code transfer) force a "Manual Technical Review Required" state that blocks the
+  approved-for-proposal status. Internal costing/margins appear only in the PIN-gated
+  Internal view (the PIN is presentation privacy, not real security). Third-party costs
+  are always listed separately as "not included unless explicitly stated."
 
 ## How to add a new industry
 
@@ -147,6 +181,10 @@ All device-local state lives under the `bizsolutions.` prefix
 | `bizsolutions.solutions` | selected client solutions list |
 | `bizsolutions.presentation` | presentation setup + current step |
 | `bizsolutions.demo.<scenarioKey>` | record state for one demo scenario |
+| `bizsolutions.pricing.estimates.v1` | saved pricing estimates (versioned) |
+| `bizsolutions.pricing.settings.v1` | pricing settings (VAT, margins, PIN, defaults) |
+| `bizsolutions.pricing.rules.v1` | customized pricing rules (absent = seed values) |
+| `bizsolutions.pricing.draft.v1` | in-progress configurator draft (autosaved) |
 
 **Resets** (Home & Settings, all with confirmation): current demo, one industry, client
 profiles, selected solutions, favorites, or the entire application.

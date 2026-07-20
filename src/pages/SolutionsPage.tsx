@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowDown, ArrowUp, Copy, Play, Share2, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowDown, ArrowUp, Calculator, Copy, Play, Share2, Trash2 } from "lucide-react";
 import { getIndustry, getService } from "../data/catalog";
 import { MODULE_TEMPLATES } from "../data/serviceTemplates";
 import { useApp } from "../store/AppStore";
@@ -12,6 +12,7 @@ import { Pill } from "../components/common/Badge";
 export function SolutionsPage() {
   const { solutions, removeSolution, moveSolution, updateSolutionNote, resetSolutions, activeProfile } = useApp();
   const toast = useToast();
+  const navigate = useNavigate();
   const [confirmClear, setConfirmClear] = useState(false);
 
   const items = solutions
@@ -79,6 +80,13 @@ export function SolutionsPage() {
   return (
     <div className="space-y-4">
       <Header clientName={activeProfile?.businessName} />
+
+      <button
+        onClick={() => navigate("/pricing/new?fromSolutions=1")}
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white hover:opacity-90"
+      >
+        <Calculator className="h-4 w-4" /> Estimate selected solutions
+      </button>
 
       <ul className="space-y-2">
         {items.map(({ sol, service, industry }, idx) => (

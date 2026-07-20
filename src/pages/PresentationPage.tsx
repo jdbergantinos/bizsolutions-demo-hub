@@ -1,6 +1,12 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, LogOut, MonitorPlay, Play, RotateCcw } from "lucide-react";
+import { Calculator, ChevronLeft, ChevronRight, LogOut, MonitorPlay, Play, RotateCcw } from "lucide-react";
+import { Modal } from "../components/common/Modal";
+import { loadEstimates, loadPricingRules, loadPricingSettings } from "../pricing/store/pricingStorage";
+import { calculateEstimate } from "../pricing/engine/calculateEstimate";
+import { inputForPackage } from "../pricing/engine/createPackageOptions";
+import { pesoRange } from "../pricing/engine/money";
+import { EstimateDisclaimer, LineTable, ManualReviewBanner } from "../pricing/components/pricingUi";
 import type { PresentationState } from "../types";
 import { getIndustry, INDUSTRIES } from "../data/catalog";
 import { GUIDED_SCENARIOS } from "../data/guidedScenarios";
@@ -176,6 +182,36 @@ function PresentationSetup() {
           </div>
         </Field>
 
+        <Field label="Pricing (optional)">
+          <div className="space-y-2">
+            <select
+              value={draft.estimateId ?? ""}
+              onChange={(e) => set({ estimateId: e.target.value || undefined, showPricing: Boolean(e.target.value) })}
+              className={inputCls}
+            >
+              <option value="">— No estimate attached —</option>
+              {loadEstimates()
+                .filter((est) => !est.archived)
+                .map((est) => (
+                  <option key={est.id} value={est.id}>
+                    {est.estimateNumber} · {est.input.businessName}
+                  </option>
+                ))}
+            </select>
+            {draft.estimateId && (
+              <label className="flex items-center gap-2 text-xs text-slate-600">
+                <input
+                  type="checkbox"
+                  checked={draft.showPricing ?? false}
+                  onChange={(e) => set({ showPricing: e.target.checked })}
+                  className="h-4 w-4 accent-[var(--app-accent)]"
+                />
+                Show pricing during the presentation (client-facing estimate only — internal pricing is never shown)
+              </label>
+            )}
+          </div>
+        </Field>
+
         <Field label="Temporary client logo (stored only on this device)">
           <div className="flex items-center gap-3">
             {draft.logo && <img src={draft.logo} alt="Logo preview" className="h-12 w-12 rounded-lg border border-slate-200 object-cover" />}
@@ -227,6 +263,11 @@ function PresentationRunner() {
   const toast = useToast();
   const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
+  const [pricingOpen, setPricingOpen] = useState(false);
+  const attachedEstimate = useMemo(
+    () => (presentation.estimateId ? loadEstimates().find((e) => e.id === presentation.estimateId) ?? null : null),
+    [presentation.estimateId],
+  );
 
   const scenario = GUIDED_SCENARIOS.find((g) => g.id === presentation.scenarioId) ?? GUIDED_SCENARIOS[0];
   const industry = getIndustry(presentation.industryId);
@@ -304,7 +345,19 @@ function PresentationRunner() {
             <Play className="h-5 w-5" /> Open this step's demo
           </button>
         )}
+        {attachedEstimate && presentation.showPricing && (
+          <button
+            onClick={() => setPricingOpen(true)}
+            className="mt-2 flex min-h-13 w-full items-center justify-center gap-2 rounded-xl border-2 border-slate-300 text-base font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            <Calculator className="h-5 w-5" /> View investment estimate
+          </button>
+        )}
       </div>
+
+      {pricingOpen && attachedEstimate && (
+        <PresentationPricingView estimate={attachedEstimate} onClose={() => setPricingOpen(false)} />
+      )}
 
       {/* Prev / Next — large controls */}
       <div className="grid grid-cols-2 gap-3">
@@ -356,6 +409,64 @@ function PresentationRunner() {
         />
       )}
     </div>
+  );
+}
+
+/** Client-facing pricing view for presentations. Never shows internal pricing. */
+function PresentationPricingView({
+  estimate,
+  onClose,
+}: {
+  estimate: NonNullable<ReturnType<typeof loadEstimates>[number]>;
+  onClose: () => void;
+}) {
+  const rules = useMemo(loadPricingRules, []);
+  const settings = useMemo(loadPricingSettings, []);
+  const { input, result } = estimate;
+  const packageTotals = estimate.packages.map((pkg) => ({
+    pkg,
+    result: calculateEstimate(inputForPackage(input, pkg), rules, settings),
+  }));
+
+  return (
+    <Modal title={`Investment estimate — ${estimate.estimateNumber}`} onClose={onClose} wide>
+      <div className="space-y-4">
+        <ManualReviewBanner reasons={result.manualReviewReasons} />
+
+        <div className="grid gap-3 md:grid-cols-3">
+          {packageTotals.map(({ pkg, result: r }) => (
+            <div key={pkg.id} className={`rounded-xl border p-3 text-center ${pkg.recommended ? "border-accent ring-1 ring-accent/30" : "border-slate-200"}`}>
+              <p className="text-sm font-bold text-slate-900">{pkg.name}</p>
+              {pkg.recommended && <p className="text-[11px] font-medium text-accent">Recommended</p>}
+              <p className="mt-2 text-sm font-semibold text-slate-900">{pesoRange(r.oneTimeTotal)}</p>
+              <p className="text-xs text-slate-500">one-time</p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">{pesoRange(r.recurringTotal)}</p>
+              <p className="text-xs text-slate-500">per month</p>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <h3 className="mb-1 text-sm font-semibold text-slate-900">One-time implementation</h3>
+          <LineTable lines={result.oneTimeLines} subtotal={result.oneTimeSubtotal} tax={result.oneTimeTax} total={result.oneTimeTotal} />
+        </div>
+        <div>
+          <h3 className="mb-1 text-sm font-semibold text-slate-900">Monthly</h3>
+          <LineTable lines={result.recurringLines} subtotal={result.recurringSubtotal} tax={result.recurringTax} total={result.recurringTotal} suffix="/mo" />
+        </div>
+
+        <div className="rounded-xl bg-amber-50 p-3 text-xs text-amber-800">
+          <p className="font-semibold">Third-party costs — not included unless explicitly stated:</p>
+          <ul className="mt-1 list-inside list-disc space-y-0.5">
+            {result.thirdPartyNotes.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        </div>
+
+        <EstimateDisclaimer />
+      </div>
+    </Modal>
   );
 }
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
-  Building2, Heart, Home, LayoutGrid, ListChecks, MonitorPlay,
+  Building2, Calculator, Heart, Home, LayoutGrid, ListChecks, MonitorPlay,
   MoreHorizontal, Settings, UserRound, Wifi, WifiOff, X,
 } from "lucide-react";
 import { useApp } from "../store/AppStore";
@@ -13,6 +13,7 @@ const NAV = [
   { to: "/", label: "Home", icon: Home },
   { to: "/industries", label: "Industries", icon: Building2 },
   { to: "/demos", label: "Demo Modules", icon: LayoutGrid },
+  { to: "/pricing", label: "Pricing Configurator", icon: Calculator },
   { to: "/solutions", label: "Selected Solutions", icon: ListChecks },
   { to: "/present", label: "Presentation Mode", icon: MonitorPlay },
   { to: "/profiles", label: "Client Profile", icon: UserRound },
@@ -20,8 +21,9 @@ const NAV = [
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
-const MOBILE_NAV = NAV.slice(0, 3).concat(NAV[4]); // Home, Industries, Demos, Present
-const MORE_NAV = [NAV[3], NAV[5], NAV[6], NAV[7]];
+const mobilePaths = ["/", "/industries", "/pricing", "/present"];
+const MOBILE_NAV = mobilePaths.map((p) => NAV.find((n) => n.to === p)!);
+const MORE_NAV = NAV.filter((n) => !mobilePaths.includes(n.to));
 
 export function AppLayout() {
   const online = useOnline();
@@ -83,7 +85,7 @@ export function AppLayout() {
         </header>
 
         <main className="mx-auto w-full max-w-5xl px-4 py-4 md:px-8 md:py-8">
-          <ErrorBoundary key={location.pathname}>
+          <ErrorBoundary key={location.pathname + location.search}>
             <Outlet />
           </ErrorBoundary>
         </main>

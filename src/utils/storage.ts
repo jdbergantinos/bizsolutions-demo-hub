@@ -8,6 +8,8 @@ export const KEYS = {
   solutions: "bizsolutions.solutions",
   presentation: "bizsolutions.presentation",
   demoPrefix: "bizsolutions.demo.",
+  // Pricing keys live in src/pricing/store/pricingStorage.ts (PRICING_KEYS)
+  // and share the "bizsolutions." prefix so clearAll() covers them.
 } as const;
 
 export function load<T>(key: string, fallback: T): T {

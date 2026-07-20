@@ -271,6 +271,9 @@ export interface PresentationState {
   accentColor?: string;
   logo?: string;
   stepIndex: number;
+  /** Optional pricing estimate attached to the presentation (client view only). */
+  estimateId?: string;
+  showPricing?: boolean;
 }
 
 export interface FavoritesState {

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, Play, Star } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Calculator, Package, Play, Star } from "lucide-react";
 import { getIndustry } from "../data/catalog";
 import { Icon } from "../components/common/Icon";
 import { ServiceCard } from "../components/catalog/ServiceCard";
@@ -92,6 +92,20 @@ export function IndustryDetailPage() {
             <Play className="h-4 w-4" /> Launch recommended workflow: {recommended.name}
           </button>
         )}
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => navigate(`/pricing/new?industry=${industry.id}`)}
+            className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <Calculator className="h-4 w-4" /> Create estimate
+          </button>
+          <button
+            onClick={() => navigate(`/pricing/new?industry=${industry.id}&quick=1`)}
+            className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <Package className="h-4 w-4" /> View recommended package
+          </button>
+        </div>
       </header>
 
       <section>

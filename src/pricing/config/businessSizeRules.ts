@@ -1,0 +1,77 @@
+import type { BusinessSizeRule } from "../types";
+
+// Size influences pricing factors and recommendations, but is never the
+// only basis for a price. INTERNAL PLACEHOLDER values.
+
+export const BUSINESS_SIZES: BusinessSizeRule[] = [
+  {
+    id: "solo",
+    name: "Solo operator",
+    description: "One owner-operator, no or minimal staff.",
+    sizeFactor: 0.85,
+    includedUsers: 2,
+    includedBranches: 1,
+    suggestedConfigurationLevel: "standard",
+    suggestedDeliveryModels: ["shared-saas"],
+  },
+  {
+    id: "micro",
+    name: "Microbusiness",
+    description: "Up to ~5 staff, single location.",
+    sizeFactor: 0.9,
+    includedUsers: 3,
+    includedBranches: 1,
+    suggestedConfigurationLevel: "standard",
+    suggestedDeliveryModels: ["shared-saas", "configured-saas"],
+  },
+  {
+    id: "small",
+    name: "Small business",
+    description: "Roughly 5–25 staff, one or two locations.",
+    sizeFactor: 1.0,
+    includedUsers: 5,
+    includedBranches: 1,
+    suggestedConfigurationLevel: "configured",
+    suggestedDeliveryModels: ["configured-saas", "shared-saas"],
+  },
+  {
+    id: "medium",
+    name: "Medium-sized business",
+    description: "Roughly 25–100 staff with structured departments.",
+    sizeFactor: 1.15,
+    includedUsers: 10,
+    includedBranches: 2,
+    suggestedConfigurationLevel: "configured",
+    suggestedDeliveryModels: ["configured-saas", "custom-built"],
+  },
+  {
+    id: "multi-branch",
+    name: "Multi-branch company",
+    description: "Several branches operating under one management.",
+    sizeFactor: 1.3,
+    includedUsers: 15,
+    includedBranches: 3,
+    suggestedConfigurationLevel: "customized",
+    suggestedDeliveryModels: ["configured-saas", "custom-built"],
+  },
+  {
+    id: "franchise",
+    name: "Franchise or chain",
+    description: "Franchised or chain operations with standardized processes.",
+    sizeFactor: 1.5,
+    includedUsers: 25,
+    includedBranches: 5,
+    suggestedConfigurationLevel: "advanced",
+    suggestedDeliveryModels: ["custom-built", "white-label"],
+  },
+  {
+    id: "enterprise-org",
+    name: "Enterprise or complex organization",
+    description: "Large or complex organization with formal requirements.",
+    sizeFactor: 1.8,
+    includedUsers: 40,
+    includedBranches: 5,
+    suggestedConfigurationLevel: "enterprise",
+    suggestedDeliveryModels: ["custom-built", "exclusive-source-transfer"],
+  },
+];

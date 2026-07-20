@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Database, HardDrive, Info, RotateCcw, ShieldAlert } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Calculator, Database, HardDrive, Info, RotateCcw, ShieldAlert } from "lucide-react";
+import { loadPricingSettings } from "../pricing/store/pricingStorage";
 import { INDUSTRIES } from "../data/catalog";
 import { useApp } from "../store/AppStore";
 import { useToast } from "../store/ToastContext";
@@ -134,6 +136,29 @@ export function SettingsPage() {
         </div>
       </section>
 
+      {/* Pricing */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-800">
+          <Calculator className="h-4 w-4" /> Pricing
+        </h2>
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          Pricing values are initial internal estimates and require owner review before use with
+          clients.
+        </p>
+        <dl className="mt-2 space-y-2 text-sm">
+          <Row label="Price-table version">{loadPricingSettings().priceTableVersion}</Row>
+          <Row label="Last price review">{loadPricingSettings().lastPriceReviewDate || "Not yet reviewed"}</Row>
+          <Row label="Storage">This device only</Row>
+        </dl>
+        <p className="mt-2 text-[11px] text-slate-400">Pricing configuration is stored only on this device.</p>
+        <Link
+          to="/pricing/admin"
+          className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Open Pricing Administration
+        </Link>
+      </section>
+
       {/* Storage keys */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-800">
@@ -147,6 +172,10 @@ export function SettingsPage() {
           <li>{KEYS.solutions} — selected client solutions</li>
           <li>{KEYS.presentation} — presentation setup</li>
           <li>{KEYS.demoPrefix}&lt;scenario&gt; — records per demo scenario</li>
+          <li>bizsolutions.pricing.estimates.v1 — saved pricing estimates</li>
+          <li>bizsolutions.pricing.settings.v1 — pricing settings</li>
+          <li>bizsolutions.pricing.rules.v1 — customized pricing rules</li>
+          <li>bizsolutions.pricing.draft.v1 — in-progress estimate draft</li>
         </ul>
       </section>
 
