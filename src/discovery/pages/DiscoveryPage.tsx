@@ -410,10 +410,10 @@ function DiscoveryWizard({
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Business name" required>
-              <input value={d.business.businessName} onChange={(e) => setB({ businessName: e.target.value })} className={inputCls} />
+              <input value={d.business.businessName} onChange={(e) => setB({ businessName: e.target.value })} placeholder="e.g. Subic Bay Grocery Corp." className={inputCls} />
             </Field>
             <Field label="Contact person">
-              <input value={d.business.contactPerson} onChange={(e) => setB({ contactPerson: e.target.value })} className={inputCls} />
+              <input value={d.business.contactPerson} onChange={(e) => setB({ contactPerson: e.target.value })} placeholder="e.g. Maria Santos — General Manager" className={inputCls} />
             </Field>
           </div>
           <Field label="Industry" required>
@@ -436,13 +436,13 @@ function DiscoveryWizard({
           )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Field label="Location">
-              <input value={d.business.location} onChange={(e) => setB({ location: e.target.value })} className={inputCls} />
+              <input value={d.business.location} onChange={(e) => setB({ location: e.target.value })} placeholder="e.g. Olongapo City" className={inputCls} />
             </Field>
             <Field label="Branches">
               <input type="number" min={1} value={d.business.branches} onChange={(e) => setB({ branches: Math.max(1, Number(e.target.value) || 1) })} className={inputCls} />
             </Field>
             <Field label="Employees">
-              <input type="number" min={0} value={d.business.employees} onChange={(e) => setB({ employees: e.target.value })} className={inputCls} />
+              <input type="number" min={0} value={d.business.employees} onChange={(e) => setB({ employees: e.target.value })} placeholder="e.g. 12" className={inputCls} />
             </Field>
             <Field label="System users">
               <input type="number" min={1} value={d.business.users} onChange={(e) => setB({ users: Math.max(1, Number(e.target.value) || 1) })} className={inputCls} />
@@ -453,13 +453,13 @@ function DiscoveryWizard({
               <input value={d.business.monthlyTransactions} onChange={(e) => setB({ monthlyTransactions: e.target.value })} placeholder="e.g. 500 orders" className={inputCls} />
             </Field>
             <Field label="Years operating">
-              <input value={d.business.yearsOperating} onChange={(e) => setB({ yearsOperating: e.target.value })} className={inputCls} />
+              <input value={d.business.yearsOperating} onChange={(e) => setB({ yearsOperating: e.target.value })} placeholder="e.g. 8 years" className={inputCls} />
             </Field>
             <Field label="Primary decision-maker">
-              <input value={d.business.decisionMaker} onChange={(e) => setB({ decisionMaker: e.target.value })} className={inputCls} />
+              <input value={d.business.decisionMaker} onChange={(e) => setB({ decisionMaker: e.target.value })} placeholder="e.g. The owner, with the manager's input" className={inputCls} />
             </Field>
             <Field label="Other stakeholders">
-              <input value={d.business.stakeholders} onChange={(e) => setB({ stakeholders: e.target.value })} className={inputCls} />
+              <input value={d.business.stakeholders} onChange={(e) => setB({ stakeholders: e.target.value })} placeholder="e.g. Spouse co-owner, branch managers" className={inputCls} />
             </Field>
             <Field label="Target implementation period">
               <select value={d.business.implementationPeriod} onChange={(e) => setB({ implementationPeriod: e.target.value })} className={inputCls}>
@@ -479,7 +479,7 @@ function DiscoveryWizard({
             </Field>
           </div>
           <Field label="Notes">
-            <textarea value={d.business.notes} onChange={(e) => setB({ notes: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+            <textarea value={d.business.notes} onChange={(e) => setB({ notes: e.target.value })} rows={2} placeholder="e.g. Planning a second branch next year" className={`${inputCls} py-2`} />
           </Field>
         </section>
       )}
@@ -506,7 +506,7 @@ function DiscoveryWizard({
           </Field>
           {d.operations.tools.includes("Other") && (
             <Field label="Other tools">
-              <input value={d.operations.toolsOther} onChange={(e) => setO({ toolsOther: e.target.value })} className={inputCls} />
+              <input value={d.operations.toolsOther} onChange={(e) => setO({ toolsOther: e.target.value })} placeholder="e.g. Old DOS-based POS from 2010" className={inputCls} />
             </Field>
           )}
           <TextArea label="Which processes are manual?" value={d.operations.manualProcesses} onChange={(v) => setO({ manualProcesses: v })} />
@@ -552,8 +552,7 @@ function DiscoveryWizard({
           </Field>
           {d.desiredOutcomes.includes("Other") && (
             <Field label="Other desired outcome">
-              <input value={d.outcomesOther} onChange={(e) => setD((x) => ({ ...x, outcomesOther: e.target.value }))} className={inputCls} />
-            </Field>
+              <input value={d.outcomesOther} onChange={(e) => setD((x) => ({ ...x, outcomesOther: e.target.value }))} placeholder="e.g. Reduce the owner's daily workload" className={inputCls} /></Field>
           )}
           <p className="rounded-xl bg-accent-soft/60 px-3 py-2 text-xs text-slate-600">
             Next: mark the specific problems in the <strong>Problem Scanner</strong> — recommendations are generated from problems plus these outcomes.
@@ -689,10 +688,32 @@ function Field({ label, required, children }: { label: string; required?: boolea
   );
 }
 
+// Sample answers per question, so every blank shows a concrete example.
+const TEXTAREA_SAMPLES: Record<string, string> = {
+  "Which processes are manual?": "e.g. Stock counting, daily sales tally, order slips",
+  "Which processes are repeated frequently?": "e.g. Weekly reorder from the same three suppliers",
+  "Which reports take the most time?": "e.g. Monthly sales summary takes a whole day",
+  "Which tasks are often delayed?": "e.g. Supplier payments and customer follow-ups",
+  "Which information is difficult to find?": "e.g. Last year's prices; which branch has stock",
+  "Where do errors commonly happen?": "e.g. Handwritten order slips get miscopied",
+  "Which processes require approval?": "e.g. Discounts above 10%, purchases above ₱20,000",
+  "Which customer concerns happen repeatedly?": "e.g. \"Is my order ready?\" calls every day",
+  "Presenter notes": "e.g. Owner is price-sensitive but frustrated by stock-outs",
+  "Unanswered questions": "e.g. How many products do they actually carry?",
+  Assumptions: "e.g. Assumed ~500 transactions/month — confirm",
+  "Items requiring verification": "e.g. Whether both branches share one supplier list",
+};
+
 function TextArea({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <Field label={label}>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={2} className={`${inputCls} py-2`} />
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={2}
+        placeholder={TEXTAREA_SAMPLES[label] ?? "e.g. Type the client's answer here"}
+        className={`${inputCls} py-2`}
+      />
     </Field>
   );
 }

@@ -140,10 +140,10 @@ export function RoiCalculatorPage() {
           <Num label="Assumed improvement (%)" value={roi.inputs.improvementPct} onChange={(v) => set({ improvementPct: Math.min(90, v) })} />
         </div>
         <L label="Client-provided assumptions">
-          <textarea value={roi.inputs.clientAssumptions} onChange={(e) => set({ clientAssumptions: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+          <textarea value={roi.inputs.clientAssumptions} onChange={(e) => set({ clientAssumptions: e.target.value })} rows={2} placeholder="e.g. Staff spend most mornings on manual encoding" className={`${inputCls} py-2`} />
         </L>
         <L label="Presenter notes (internal)">
-          <textarea value={roi.inputs.presenterNotes} onChange={(e) => set({ presenterNotes: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+          <textarea value={roi.inputs.presenterNotes} onChange={(e) => set({ presenterNotes: e.target.value })} rows={2} placeholder="e.g. Numbers came from the owner — verify with the manager" className={`${inputCls} py-2`} />
         </L>
         <L label="Link a pricing estimate (enables payback & return)">
           <select value={roi.pricingEstimateId ?? ""} onChange={(e) => setRoi((r) => ({ ...r, pricingEstimateId: e.target.value || undefined }))} className={inputCls}>
@@ -221,6 +221,23 @@ export function RoiCalculatorPage() {
   );
 }
 
+const NUM_SAMPLES: Record<string, string> = {
+  "Employees doing manual work": "e.g. 4",
+  "Manual hours / employee / week": "e.g. 10",
+  "Average employee monthly cost (₱)": "e.g. 17300",
+  "Report preparation hours / week": "e.g. 5",
+  "Missed appointments / month": "e.g. 10",
+  "Value per appointment (₱)": "e.g. 800",
+  "Lost / forgotten leads / month": "e.g. 8",
+  "Value per converted lead (₱)": "e.g. 1500",
+  "Inventory loss / discrepancy per month (₱)": "e.g. 5000",
+  "Delayed collections outstanding (₱)": "e.g. 50000",
+  "Paper / printing / comms per month (₱)": "e.g. 3000",
+  "Repeated data-entry hours / week": "e.g. 6",
+  "Average process delay (days)": "e.g. 2",
+  "Assumed improvement (%)": "e.g. 30",
+};
+
 function Num({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <L label={label}>
@@ -228,7 +245,7 @@ function Num({ label, value, onChange }: { label: string; value: number; onChang
         type="number"
         min={0}
         value={value || ""}
-        placeholder="0"
+        placeholder={NUM_SAMPLES[label] ?? "e.g. 10"}
         onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
         className={inputCls}
       />

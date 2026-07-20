@@ -105,7 +105,7 @@ export function ScopeBuilderPage() {
       </div>
 
       <L label="Scope name">
-        <input value={scope.name} onChange={(e) => setScope((s) => ({ ...s, name: e.target.value }))} className={inputCls} />
+        <input value={scope.name} onChange={(e) => setScope((s) => ({ ...s, name: e.target.value }))} placeholder="e.g. Preliminary scope — Bella Salon" className={inputCls} />
       </L>
 
       <ListEditor title="Included" tone="green" value={scope.included} onChange={(t) => setList("included", t)} />
@@ -115,7 +115,7 @@ export function ScopeBuilderPage() {
       <ListEditor title="Open questions" tone="violet" value={scope.openQuestions} onChange={(t) => setList("openQuestions", t)} />
 
       <L label="Notes">
-        <textarea value={scope.notes} onChange={(e) => setScope((s) => ({ ...s, notes: e.target.value }))} rows={2} className={`${inputCls} py-2`} />
+        <textarea value={scope.notes} onChange={(e) => setScope((s) => ({ ...s, notes: e.target.value }))} rows={2} placeholder="e.g. Phase 2 items to revisit in January" className={`${inputCls} py-2`} />
       </L>
 
       {/* Feature-to-value explanations */}

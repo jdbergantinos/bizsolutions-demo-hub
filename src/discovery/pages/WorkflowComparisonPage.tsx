@@ -121,6 +121,7 @@ export function WorkflowComparisonPage() {
             value={workflow.name}
             onChange={(e) => set({ name: e.target.value })}
             aria-label="Workflow name"
+            placeholder="e.g. Order handling — before & after"
             className="mt-1 w-full max-w-xs rounded-lg border border-transparent px-1 text-sm text-slate-500 hover:border-slate-200 focus:border-slate-300 focus:outline-none"
           />
         </div>
@@ -344,16 +345,16 @@ function MiniBtn({ label, onClick, disabled, children }: { label: string; onClic
 function CurrentStepForm({ step, onChange, onDelete, onClose }: { step: CurrentWorkflowStep; onChange: (s: CurrentWorkflowStep) => void; onDelete: () => void; onClose: () => void }) {
   return (
     <div className="space-y-3">
-      <L label="Step title"><input value={step.title} onChange={(e) => onChange({ ...step, title: e.target.value })} className={inputCls} /></L>
-      <L label="Description"><textarea value={step.description} onChange={(e) => onChange({ ...step, description: e.target.value })} rows={2} className={`${inputCls} py-2`} /></L>
+      <L label="Step title"><input value={step.title} onChange={(e) => onChange({ ...step, title: e.target.value })} placeholder="e.g. Customer sends Messenger message" className={inputCls} /></L>
+      <L label="Description"><textarea value={step.description} onChange={(e) => onChange({ ...step, description: e.target.value })} rows={2} placeholder="e.g. What actually happens in this step today" className={`${inputCls} py-2`} /></L>
       <div className="grid grid-cols-2 gap-3">
-        <L label="Responsible person / role"><input value={step.responsible} onChange={(e) => onChange({ ...step, responsible: e.target.value })} className={inputCls} /></L>
-        <L label="Current tool"><input value={step.tool} onChange={(e) => onChange({ ...step, tool: e.target.value })} className={inputCls} /></L>
+        <L label="Responsible person / role"><input value={step.responsible} onChange={(e) => onChange({ ...step, responsible: e.target.value })} placeholder="e.g. Front desk" className={inputCls} /></L>
+        <L label="Current tool"><input value={step.tool} onChange={(e) => onChange({ ...step, tool: e.target.value })} placeholder="e.g. Messenger / notebook" className={inputCls} /></L>
         <L label="Estimated time (minutes)"><input type="number" min={0} value={step.estimatedMinutes} onChange={(e) => onChange({ ...step, estimatedMinutes: Math.max(0, Number(e.target.value) || 0) })} className={inputCls} /></L>
         <L label="Typical waiting / delay (minutes)"><input type="number" min={0} value={step.delayMinutes} onChange={(e) => onChange({ ...step, delayMinutes: Math.max(0, Number(e.target.value) || 0) })} className={inputCls} /></L>
       </div>
-      <L label="Common error"><input value={step.commonError} onChange={(e) => onChange({ ...step, commonError: e.target.value })} className={inputCls} /></L>
-      <L label="Notes"><textarea value={step.notes} onChange={(e) => onChange({ ...step, notes: e.target.value })} rows={2} className={`${inputCls} py-2`} /></L>
+      <L label="Common error"><input value={step.commonError} onChange={(e) => onChange({ ...step, commonError: e.target.value })} placeholder="e.g. Details copied wrong from the chat" className={inputCls} /></L>
+      <L label="Notes"><textarea value={step.notes} onChange={(e) => onChange({ ...step, notes: e.target.value })} rows={2} placeholder="e.g. Worst on weekends when the owner is out" className={`${inputCls} py-2`} /></L>
       <div>
         <p className="mb-1 text-xs font-medium text-slate-600">Mark this step as:</p>
         <div className="flex flex-wrap gap-1.5">
@@ -380,7 +381,7 @@ function CurrentStepForm({ step, onChange, onDelete, onClose }: { step: CurrentW
 function ProposedStepForm({ step, onChange, onDelete, onClose }: { step: ProposedWorkflowStep; onChange: (s: ProposedWorkflowStep) => void; onDelete: () => void; onClose: () => void }) {
   return (
     <div className="space-y-3">
-      <L label="Step title"><input value={step.title} onChange={(e) => onChange({ ...step, title: e.target.value })} className={inputCls} /></L>
+      <L label="Step title"><input value={step.title} onChange={(e) => onChange({ ...step, title: e.target.value })} placeholder="e.g. Inquiry captured in CRM" className={inputCls} /></L>
       <div className="grid grid-cols-2 gap-3">
         <L label="Execution">
           <select value={step.automated ? "auto" : "manual"} onChange={(e) => onChange({ ...step, automated: e.target.value === "auto" })} className={inputCls}>
@@ -388,7 +389,7 @@ function ProposedStepForm({ step, onChange, onDelete, onClose }: { step: Propose
             <option value="auto">Automated (system performs it)</option>
           </select>
         </L>
-        <L label="Responsible role"><input value={step.responsibleRole} onChange={(e) => onChange({ ...step, responsibleRole: e.target.value })} className={inputCls} /></L>
+        <L label="Responsible role"><input value={step.responsibleRole} onChange={(e) => onChange({ ...step, responsibleRole: e.target.value })} placeholder="e.g. Staff, or the system itself" className={inputCls} /></L>
       </div>
       <L label="Related module">
         <select value={step.relatedModule} onChange={(e) => onChange({ ...step, relatedModule: e.target.value as DemoModuleType | "" })} className={inputCls}>
@@ -398,13 +399,13 @@ function ProposedStepForm({ step, onChange, onDelete, onClose }: { step: Propose
           ))}
         </select>
       </L>
-      <L label="Expected result"><input value={step.expectedResult} onChange={(e) => onChange({ ...step, expectedResult: e.target.value })} className={inputCls} /></L>
+      <L label="Expected result"><input value={step.expectedResult} onChange={(e) => onChange({ ...step, expectedResult: e.target.value })} placeholder="e.g. Lead recorded with an assigned owner" className={inputCls} /></L>
       <L label="Notification (simulated)"><input value={step.notification} onChange={(e) => onChange({ ...step, notification: e.target.value })} placeholder="e.g. Customer receives status update" className={inputCls} /></L>
       <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 text-sm text-slate-700">
         <input type="checkbox" checked={step.requiresApproval} onChange={(e) => onChange({ ...step, requiresApproval: e.target.checked })} className="h-4 w-4 accent-[var(--app-accent)]" />
         Requires approval
       </label>
-      <L label="Notes"><textarea value={step.notes} onChange={(e) => onChange({ ...step, notes: e.target.value })} rows={2} className={`${inputCls} py-2`} /></L>
+      <L label="Notes"><textarea value={step.notes} onChange={(e) => onChange({ ...step, notes: e.target.value })} rows={2} placeholder="e.g. Needs the manager's phone signed in" className={`${inputCls} py-2`} /></L>
       <div className="flex gap-2 pt-1">
         <button onClick={onDelete} className="min-h-11 flex-1 rounded-xl border border-red-200 text-sm font-medium text-red-600 hover:bg-red-50">Delete step</button>
         <button onClick={onClose} className="min-h-11 flex-1 rounded-xl bg-accent text-sm font-semibold text-white hover:opacity-90">Done</button>

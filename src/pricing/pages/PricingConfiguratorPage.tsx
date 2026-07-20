@@ -286,10 +286,10 @@ export function PricingConfiguratorPage() {
             )}
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Business name" required>
-                <input value={input.businessName} onChange={(e) => set({ businessName: e.target.value })} className={inputCls} />
+                <input value={input.businessName} onChange={(e) => set({ businessName: e.target.value })} placeholder="e.g. Subic Bay Trading Corp." className={inputCls} />
               </Field>
               <Field label="Contact person">
-                <input value={input.contactPerson} onChange={(e) => set({ contactPerson: e.target.value })} className={inputCls} />
+                <input value={input.contactPerson} onChange={(e) => set({ contactPerson: e.target.value })} placeholder="e.g. Ramon Cruz — Owner" className={inputCls} />
               </Field>
             </div>
             <Field label="Industry" required>
@@ -322,7 +322,7 @@ export function PricingConfiguratorPage() {
                 <input type="number" min={1} value={input.branches} onChange={(e) => set({ branches: Math.max(1, Number(e.target.value) || 1) })} className={inputCls} />
               </Field>
               <Field label="Employees">
-                <input type="number" min={0} value={input.employees} onChange={(e) => set({ employees: e.target.value })} className={inputCls} />
+                <input type="number" min={0} value={input.employees} onChange={(e) => set({ employees: e.target.value })} placeholder="e.g. 15" className={inputCls} />
               </Field>
               <Field label="System users">
                 <input type="number" min={1} value={input.users} onChange={(e) => set({ users: Math.max(1, Number(e.target.value) || 1) })} className={inputCls} />
@@ -337,10 +337,10 @@ export function PricingConfiguratorPage() {
               </Field>
             </div>
             <Field label="Primary business problems">
-              <textarea value={input.primaryProblems} onChange={(e) => set({ primaryProblems: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+              <textarea value={input.primaryProblems} onChange={(e) => set({ primaryProblems: e.target.value })} rows={2} placeholder="e.g. Stock-outs and slow quotations" className={`${inputCls} py-2`} />
             </Field>
             <Field label="Notes">
-              <textarea value={input.notes} onChange={(e) => set({ notes: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+              <textarea value={input.notes} onChange={(e) => set({ notes: e.target.value })} rows={2} placeholder="e.g. Wants to start with one branch first" className={`${inputCls} py-2`} />
             </Field>
             {input.clientProfileId && (
               <button

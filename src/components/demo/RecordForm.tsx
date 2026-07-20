@@ -1,45 +1,7 @@
 import { useState } from "react";
 import type { FieldDef } from "../../types";
 import { Modal } from "../common/Modal";
-
-/**
- * Sample-answer placeholder for fields that don't define their own,
- * matched from the field's label so every demo form shows an example.
- */
-function placeholderFor(f: FieldDef): string | undefined {
-  if (f.placeholder) return f.placeholder;
-  if (f.type === "currency") return "e.g. 25000";
-  if (f.type === "number") return "e.g. 10";
-  if (f.type === "date" || f.type === "time" || f.type === "select") return undefined;
-  const label = f.label.toLowerCase();
-  // Order matters: specific patterns must come before generic ones
-  // (e.g. "Plate no." must match the plate rule, not the "no." rule).
-  const rules: [RegExp, string][] = [
-    [/mobile|phone/, "0917 000 0000"],
-    [/plate/, "e.g. NDA 3921"],
-    [/vehicle/, "e.g. Toyota Vios 2019"],
-    [/sku|part number/, "e.g. GRO-0042"],
-    [/job order/, "e.g. JO-1041"],
-    [/batch/, "e.g. Batch 2026-1"],
-    [/company|group/, "e.g. Subic Bay Trading Corp. (Sample)"],
-    [/supplier/, "e.g. Zambales Trading Corp. (Sample)"],
-    [/concern|justification|details|notes|remarks|proof/, "e.g. Discussed by phone — details to follow (sample)"],
-    [/reported by|requested by|owner|related/, "e.g. Maria Santos (Sample)"],
-    [/name|customer|client|dealer|buyer|guest|patient|member|student|participant|applicant|family/, "e.g. Juan Dela Cruz (Sample)"],
-    [/interested|interest/, "e.g. Monthly bulk order"],
-    [/service|purpose|program|course/, "e.g. Standard package"],
-    [/title|subject/, "e.g. Follow-up on pending order"],
-    [/reference|ref\b|no\./, "e.g. INV-5401"],
-    [/category/, "e.g. Fast-moving"],
-    [/unit\b/, "pcs, box, kg"],
-    [/branch|location|destination/, "e.g. Olongapo City"],
-    [/duty|post\b/, "e.g. Counter duty"],
-    [/asset/, "e.g. Aircon unit — 2F"],
-    [/load|items/, "e.g. 3 boxes assorted"],
-  ];
-  for (const [re, text] of rules) if (re.test(label)) return text;
-  return "Sample answer (demo only)";
-}
+import { placeholderFor } from "../../utils/samplePlaceholders";
 
 /** Renders a scenario's configured fields as a create/edit form. */
 export function RecordForm({

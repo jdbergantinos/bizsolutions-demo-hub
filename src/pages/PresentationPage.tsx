@@ -149,10 +149,10 @@ function PresentationSetup() {
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="Branches">
-            <input type="number" min={0} value={draft.branches} onChange={(e) => set({ branches: e.target.value })} className={inputCls} />
+            <input type="number" min={0} value={draft.branches} onChange={(e) => set({ branches: e.target.value })} placeholder="e.g. 2" className={inputCls} />
           </Field>
           <Field label="Employees">
-            <input type="number" min={0} value={draft.employees} onChange={(e) => set({ employees: e.target.value })} className={inputCls} />
+            <input type="number" min={0} value={draft.employees} onChange={(e) => set({ employees: e.target.value })} placeholder="e.g. 8" className={inputCls} />
           </Field>
         </div>
 

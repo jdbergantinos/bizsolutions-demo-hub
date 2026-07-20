@@ -233,11 +233,11 @@ function ProfileForm({
         className="space-y-3"
       >
         <Field label="Business name" required>
-          <input required value={p.businessName} onChange={(e) => set({ businessName: e.target.value })} className={inputCls} />
+          <input required value={p.businessName} onChange={(e) => set({ businessName: e.target.value })} placeholder="e.g. Bella Salon & Spa" className={inputCls} />
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Contact person">
-            <input value={p.contactPerson} onChange={(e) => set({ contactPerson: e.target.value })} className={inputCls} />
+            <input value={p.contactPerson} onChange={(e) => set({ contactPerson: e.target.value })} placeholder="e.g. Maria Santos" className={inputCls} />
           </Field>
           <Field label="Business type">
             <input value={p.businessType} onChange={(e) => set({ businessType: e.target.value })} placeholder="e.g. multi-branch retail" className={inputCls} />
@@ -255,23 +255,23 @@ function ProfileForm({
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Number of branches">
-            <input type="number" min={0} value={p.branches} onChange={(e) => set({ branches: e.target.value })} className={inputCls} />
+            <input type="number" min={0} value={p.branches} onChange={(e) => set({ branches: e.target.value })} placeholder="e.g. 2" className={inputCls} />
           </Field>
           <Field label="Number of employees">
-            <input type="number" min={0} value={p.employees} onChange={(e) => set({ employees: e.target.value })} className={inputCls} />
+            <input type="number" min={0} value={p.employees} onChange={(e) => set({ employees: e.target.value })} placeholder="e.g. 8" className={inputCls} />
           </Field>
         </div>
         <Field label="Current systems">
           <input value={p.currentSystems} onChange={(e) => set({ currentSystems: e.target.value })} placeholder="e.g. notebooks, Excel, Messenger" className={inputCls} />
         </Field>
         <Field label="Primary problems">
-          <textarea value={p.primaryProblems} onChange={(e) => set({ primaryProblems: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+          <textarea value={p.primaryProblems} onChange={(e) => set({ primaryProblems: e.target.value })} rows={2} placeholder="e.g. No-shows and lost client records" className={`${inputCls} py-2`} />
         </Field>
         <Field label="Desired outcomes">
-          <textarea value={p.desiredOutcomes} onChange={(e) => set({ desiredOutcomes: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+          <textarea value={p.desiredOutcomes} onChange={(e) => set({ desiredOutcomes: e.target.value })} rows={2} placeholder="e.g. Fewer no-shows, more repeat clients" className={`${inputCls} py-2`} />
         </Field>
         <Field label="Notes">
-          <textarea value={p.notes} onChange={(e) => set({ notes: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+          <textarea value={p.notes} onChange={(e) => set({ notes: e.target.value })} rows={2} placeholder="e.g. Referred by a current client" className={`${inputCls} py-2`} />
         </Field>
 
         <Field label="Temporary logo (stored only on this device)">
