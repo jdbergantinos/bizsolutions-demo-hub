@@ -1,9 +1,12 @@
+import type { ClientProfile } from "../../types";
 import type { DiscoveryRecord, WorkflowComparison } from "../types";
-import { loadWorkflows } from "../store/discoveryStorage";
+import { loadDiscoveries, loadWorkflows } from "../store/discoveryStorage";
+import { getProblem } from "../config/problemCatalog";
 import { loadEstimates } from "../../pricing/store/pricingStorage";
 import type { PricingEstimate } from "../../pricing/types";
 import type { ImplementationRoadmap, MeetingRecord, PreliminaryScope, RoiEstimate } from "../../value/types";
 import { meetingRepo, roadmapRepo, roiRepo, scopeRepo } from "../../value/store/valueStorage";
+import { uid } from "../../utils/storage";
 
 // The client workspace: the active discovery is the anchor, and every tool
 // resolves ITS client's records through these finders instead of grabbing
@@ -56,4 +59,42 @@ export function latestMeetingForDiscovery(d: DiscoveryRecord | null): MeetingRec
       .filter((m) => m.discoveryId === d.id)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0] ?? null
   );
+}
+
+/**
+ * The client profile that should be active for a given active discovery, so
+ * setting a client active in Discovery also activates its saved profile
+ * (accent color, Client Profile highlight). Returns null when the discovery
+ * has no saved profile — the active profile is then cleared so nothing
+ * disagrees with the workspace.
+ */
+export function activeProfileIdForDiscovery(discoveryId: string | null, profiles: ClientProfile[]): string | null {
+  if (!discoveryId) return null;
+  const d = loadDiscoveries().find((x) => x.id === discoveryId);
+  const linked = d?.clientProfileId;
+  return linked && profiles.some((p) => p.id === linked) ? linked : null;
+}
+
+/** Builds a permanent Client Profile from a discovery's collected details. */
+export function profileFromDiscovery(d: DiscoveryRecord): ClientProfile {
+  const problemTitles = d.problems
+    .map((p) => getProblem(p.problemId)?.title ?? p.customTitle)
+    .filter(Boolean)
+    .join("; ");
+  const tools = [d.operations.tools.join(", "), d.operations.toolsOther].filter(Boolean).join(" — ");
+  const outcomes = [d.desiredOutcomes.join(", "), d.outcomesOther].filter(Boolean).join(" — ");
+  return {
+    id: uid(),
+    businessName: d.business.businessName,
+    contactPerson: d.business.contactPerson,
+    industryId: d.business.industryId,
+    businessType: d.business.businessExample,
+    branches: String(d.business.branches),
+    employees: d.business.employees,
+    currentSystems: tools,
+    primaryProblems: problemTitles || d.business.notes,
+    desiredOutcomes: outcomes,
+    notes: d.business.notes,
+    createdAt: new Date().toISOString(),
+  };
 }

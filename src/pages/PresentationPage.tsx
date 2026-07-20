@@ -7,7 +7,8 @@ import { calculateEstimate } from "../pricing/engine/calculateEstimate";
 import { inputForPackage } from "../pricing/engine/createPackageOptions";
 import { pesoRange } from "../pricing/engine/money";
 import { EstimateDisclaimer, LineTable, ManualReviewBanner } from "../pricing/components/pricingUi";
-import type { PresentationState } from "../types";
+import type { ClientProfile, PresentationState } from "../types";
+import { getActiveDiscovery } from "../discovery/store/discoveryStorage";
 import { getIndustry, INDUSTRIES } from "../data/catalog";
 import { GUIDED_SCENARIOS } from "../data/guidedScenarios";
 import { EMPTY_PRESENTATION, useApp } from "../store/AppStore";
@@ -22,12 +23,49 @@ export function PresentationPage() {
   return presentation.active ? <PresentationRunner /> : <PresentationSetup />;
 }
 
+/**
+ * When the presenter opens Presentation Mode with no client set up yet, default
+ * the setup to the active client (the one they set active in Discovery). If that
+ * client is saved as a profile we use the profile; otherwise we prefill straight
+ * from the active discovery. A presentation already set up for someone is left
+ * untouched.
+ */
+function seedPresentationFromActiveClient(base: PresentationState, profiles: ClientProfile[]): PresentationState {
+  if (base.businessName.trim()) return base;
+  const d = getActiveDiscovery();
+  if (!d) return base;
+  const profile = d.clientProfileId ? profiles.find((p) => p.id === d.clientProfileId) : undefined;
+  if (profile) {
+    return {
+      ...base,
+      profileId: profile.id,
+      businessName: profile.businessName,
+      industryId: profile.industryId || base.industryId,
+      branches: profile.branches,
+      employees: profile.employees,
+      primaryProblem: profile.primaryProblems,
+      accentColor: profile.accentColor ?? base.accentColor,
+      logo: profile.logo ?? base.logo,
+    };
+  }
+  return {
+    ...base,
+    businessName: d.business.businessName,
+    industryId: d.business.industryId || base.industryId,
+    branches: String(d.business.branches ?? base.branches),
+    employees: d.business.employees || base.employees,
+    primaryProblem: d.business.notes || base.primaryProblem,
+  };
+}
+
 // ---------------- Setup ----------------
 
 function PresentationSetup() {
   const { presentation, setPresentation, profiles } = useApp();
   const toast = useToast();
-  const [draft, setDraft] = useState<PresentationState>({ ...EMPTY_PRESENTATION, ...presentation, active: false });
+  const [draft, setDraft] = useState<PresentationState>(() =>
+    seedPresentationFromActiveClient({ ...EMPTY_PRESENTATION, ...presentation, active: false }, profiles),
+  );
   const fileRef = useRef<HTMLInputElement>(null);
   const set = (patch: Partial<PresentationState>) => setDraft((d) => ({ ...d, ...patch }));
 

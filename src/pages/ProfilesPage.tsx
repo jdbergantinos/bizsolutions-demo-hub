@@ -8,6 +8,8 @@ import { useToast } from "../store/ToastContext";
 import { Modal } from "../components/common/Modal";
 import { ConfirmDialog } from "../components/common/ConfirmDialog";
 import { EmptyState } from "../components/common/EmptyState";
+import { getActiveDiscovery, upsertDiscovery } from "../discovery/store/discoveryStorage";
+import { profileFromDiscovery } from "../discovery/engine/workspace";
 import { uid } from "../utils/storage";
 
 const ACCENTS = ["#0f4c81", "#0e7490", "#15803d", "#b45309", "#be185d", "#6d28d9"];
@@ -35,8 +37,39 @@ export function ProfilesPage() {
   const [editing, setEditing] = useState<ClientProfile | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<ClientProfile | null>(null);
 
+  // The active client comes from Discovery. If that discovery hasn't been saved
+  // as a profile yet, nothing is highlighted below — so tell the presenter who
+  // the active client is and offer to save it in one tap.
+  const activeDiscovery = getActiveDiscovery();
+  const activeClientName = activeDiscovery?.business.businessName.trim();
+  const activeClientSaved =
+    !!activeDiscovery?.clientProfileId && profiles.some((p) => p.id === activeDiscovery.clientProfileId);
+  const showUnsavedBanner = !!activeClientName && !activeClientSaved;
+
   return (
     <div className="space-y-4">
+      {showUnsavedBanner && activeDiscovery && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <p className="text-sm font-semibold text-amber-900">Active client: {activeClientName}</p>
+          <p className="mt-0.5 text-xs text-amber-800">
+            This is the client you set active in Discovery. It isn't saved as a profile yet, so nothing is
+            highlighted below.
+          </p>
+          <button
+            onClick={() => {
+              const profile = profileFromDiscovery(activeDiscovery);
+              saveProfile(profile);
+              upsertDiscovery({ ...activeDiscovery, clientProfileId: profile.id, updatedAt: new Date().toISOString() });
+              setActiveProfile(profile.id);
+              toast(`"${profile.businessName}" saved to Client Profiles.`);
+            }}
+            className="mt-2 inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-accent px-3 text-xs font-semibold text-white hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" /> Save as profile
+          </button>
+        </div>
+      )}
+
       <header className="flex items-start justify-between gap-2">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Client Profiles</h1>
