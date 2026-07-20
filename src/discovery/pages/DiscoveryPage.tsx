@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
-  ArrowLeft, ArrowRight, ClipboardList, Copy, Download, GitCompareArrows,
-  Lightbulb, MonitorPlay, Plus, RotateCcw, Save, ScanSearch, Trash2, Upload,
+  ArrowLeft, ArrowRight, ClipboardList, Copy, Download, FileCheck2, FileText,
+  GitCompareArrows, Lightbulb, Map, MonitorPlay, NotebookPen, Package, Plus,
+  RotateCcw, Save, ScanSearch, Trash2, TrendingUp, Upload,
 } from "lucide-react";
 import { getIndustry, INDUSTRIES } from "../../data/catalog";
 import { useApp } from "../../store/AppStore";
@@ -98,6 +99,12 @@ function DiscoveryHub({
     { to: "/solution-recommendations", label: "Recommendations", icon: Lightbulb, desc: "Generate a solution from the discovery" },
     { to: "/workflow-comparison", label: "Workflow Comparison", icon: GitCompareArrows, desc: "Before-and-after workflow builder" },
     { to: "/presentation-builder", label: "Presentation Builder", icon: MonitorPlay, desc: "Assemble the client-branded presentation" },
+    { to: "/roi", label: "ROI & Business Value", icon: TrendingUp, desc: "Illustrative value estimate from client inputs" },
+    { to: "/packages", label: "Package Comparison", icon: Package, desc: "Essential / Growth / Advanced side by side" },
+    { to: "/scope", label: "Scope Builder", icon: FileCheck2, desc: "Preliminary scope for discussion" },
+    { to: "/roadmap", label: "Roadmap", icon: Map, desc: "Implementation stages outline" },
+    { to: "/meetings", label: "Meetings & Next Steps", icon: NotebookPen, desc: "Decision log and recommended next step" },
+    { to: "/summary", label: "Discussion Summary", icon: FileText, desc: "Polished client summary and acknowledgment" },
   ];
 
   return (

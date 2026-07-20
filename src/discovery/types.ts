@@ -192,11 +192,14 @@ export type PresentationSectionId =
   | "recommended-solution"
   | "interactive-demo"
   | "role-views"
+  | "business-value"
   | "package-comparison"
   | "preliminary-pricing"
+  | "preliminary-scope"
   | "implementation-process"
   | "questions"
-  | "next-steps";
+  | "next-steps"
+  | "client-acknowledgment";
 
 export interface PresentationSection {
   id: PresentationSectionId;
@@ -217,6 +220,11 @@ export interface SalesPresentation {
   workflowId?: string;
   /** Pricing estimate attached for the pricing/package sections. */
   estimateId?: string;
+  /** Phase B content links (all optional, all backward compatible). */
+  roiId?: string;
+  scopeId?: string;
+  roadmapId?: string;
+  meetingId?: string;
   /** Service offers to feature in the interactive-demo section. */
   demoServiceIds: string[];
   presenterName: string;

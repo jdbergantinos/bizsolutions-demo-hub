@@ -285,6 +285,8 @@ export interface PackageOption {
   configurationLevel: ConfigurationLevel;
   supportPlanId: string;
   recommended: boolean;
+  /** Optional per-package delivery-model override (Phase B comparison). */
+  deliveryModel?: DeliveryModel;
 }
 
 // ---------- Stored estimate ----------

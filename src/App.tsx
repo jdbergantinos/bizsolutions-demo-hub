@@ -21,6 +21,12 @@ import { RecommendationsPage } from "./discovery/pages/RecommendationsPage";
 import { WorkflowComparisonPage } from "./discovery/pages/WorkflowComparisonPage";
 import { PresentationBuilderPage } from "./discovery/pages/PresentationBuilderPage";
 import { GuidedPresentationPage } from "./discovery/pages/GuidedPresentationPage";
+import { RoiCalculatorPage } from "./value/pages/RoiCalculatorPage";
+import { PackageComparisonPage } from "./value/pages/PackageComparisonPage";
+import { ScopeBuilderPage } from "./value/pages/ScopeBuilderPage";
+import { RoadmapPage } from "./value/pages/RoadmapPage";
+import { MeetingsPage } from "./value/pages/MeetingsPage";
+import { SummaryPage } from "./value/pages/SummaryPage";
 import { EmptyState } from "./components/common/EmptyState";
 
 export default function App() {
@@ -45,6 +51,12 @@ export default function App() {
           <Route path="solution-recommendations" element={<RecommendationsPage />} />
           <Route path="workflow-comparison" element={<WorkflowComparisonPage />} />
           <Route path="presentation-builder" element={<PresentationBuilderPage />} />
+          <Route path="roi" element={<RoiCalculatorPage />} />
+          <Route path="packages" element={<PackageComparisonPage />} />
+          <Route path="scope" element={<ScopeBuilderPage />} />
+          <Route path="roadmap" element={<RoadmapPage />} />
+          <Route path="meetings" element={<MeetingsPage />} />
+          <Route path="summary" element={<SummaryPage />} />
           <Route path="pricing" element={<PricingListPage />} />
           <Route path="pricing/new" element={<PricingConfiguratorPage />} />
           <Route path="pricing/estimate/:estimateId" element={<EstimateViewPage />} />

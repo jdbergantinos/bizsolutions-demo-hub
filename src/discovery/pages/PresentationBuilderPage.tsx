@@ -7,8 +7,9 @@ import { useToast } from "../../store/ToastContext";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { Pill } from "../../components/common/Badge";
 import type { SalesPresentation } from "../types";
-import { SECTION_META, defaultSections } from "../config/sections";
+import { SECTION_META, defaultSections, normalizeSections } from "../config/sections";
 import { loadEstimates } from "../../pricing/store/pricingStorage";
+import { meetingRepo, roadmapRepo, roiRepo, scopeRepo } from "../../value/store/valueStorage";
 import {
   deletePresentation, getActiveDiscovery, loadDiscoveries, loadPresentations,
   loadWorkflows, newPresentation, upsertPresentation,
@@ -82,6 +83,14 @@ export function PresentationBuilderPage() {
   const workflows = loadWorkflows();
   const estimates = loadEstimates().filter((e) => !e.archived);
   const set = (patch: Partial<SalesPresentation>) => setP((x) => (x ? { ...x, ...patch } : x));
+
+  // Presentations saved before Phase B gain its sections automatically.
+  useEffect(() => {
+    if (p && normalizeSections(p.sections).length !== p.sections.length) {
+      set({ sections: normalizeSections(p.sections) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [p?.id]);
 
   if (!p) {
     return (
@@ -253,6 +262,40 @@ export function PresentationBuilderPage() {
             ))}
           </select>
         </L>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <L label="ROI / business-value estimate">
+            <select value={p.roiId ?? ""} onChange={(e) => set({ roiId: e.target.value || undefined })} className={inputCls}>
+              <option value="">— None —</option>
+              {roiRepo.loadAll().map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </select>
+          </L>
+          <L label="Preliminary scope">
+            <select value={p.scopeId ?? ""} onChange={(e) => set({ scopeId: e.target.value || undefined })} className={inputCls}>
+              <option value="">— None —</option>
+              {scopeRepo.loadAll().map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </L>
+          <L label="Implementation roadmap">
+            <select value={p.roadmapId ?? ""} onChange={(e) => set({ roadmapId: e.target.value || undefined })} className={inputCls}>
+              <option value="">— None —</option>
+              {roadmapRepo.loadAll().map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </select>
+          </L>
+          <L label="Meeting record (drives next-step slide)">
+            <select value={p.meetingId ?? ""} onChange={(e) => set({ meetingId: e.target.value || undefined })} className={inputCls}>
+              <option value="">— None —</option>
+              {meetingRepo.loadAll().map((m) => (
+                <option key={m.id} value={m.id}>{m.clientName || "Meeting"} · {m.meetingDate}</option>
+              ))}
+            </select>
+          </L>
+        </div>
         {industry && (
           <L label="Demos to feature">
             <div className="max-h-40 space-y-1 overflow-y-auto rounded-xl border border-slate-200 p-2">

@@ -1,6 +1,9 @@
 import type { PresentationSection, PresentationSectionId } from "../types";
 
 export const SECTION_META: Record<PresentationSectionId, { title: string; presenterTip: string }> = {
+  "business-value": { title: "Business Value & ROI", presenterTip: "Anchor every number to an assumption the client gave you. Ranges, never promises." },
+  "preliminary-scope": { title: "Preliminary Scope", presenterTip: "Read the 'not included' list aloud — it prevents the most painful misunderstandings." },
+  "client-acknowledgment": { title: "Client Acknowledgment", presenterTip: "Frame it as capturing the discussion, never as signing anything." },
   "client-overview": { title: "Client Overview", presenterTip: "Confirm the basics out loud — it shows you listened during discovery." },
   "current-challenges": { title: "Current Challenges", presenterTip: "Let the client correct you; corrections build buy-in." },
   "business-problems": { title: "Business Problems", presenterTip: "Ask: \"Which of these hurts the most?\" and mark it verified." },
@@ -25,13 +28,23 @@ export const DEFAULT_SECTION_ORDER: PresentationSectionId[] = [
   "recommended-solution",
   "interactive-demo",
   "role-views",
+  "business-value",
   "package-comparison",
   "preliminary-pricing",
+  "preliminary-scope",
   "implementation-process",
   "questions",
   "next-steps",
+  "client-acknowledgment",
 ];
 
 export function defaultSections(): PresentationSection[] {
   return DEFAULT_SECTION_ORDER.map((id) => ({ id, enabled: true }));
+}
+
+/** Appends sections added in later phases to presentations saved before them. */
+export function normalizeSections(sections: PresentationSection[]): PresentationSection[] {
+  const known = new Set(sections.map((s) => s.id));
+  const missing = DEFAULT_SECTION_ORDER.filter((id) => !known.has(id));
+  return [...sections, ...missing.map((id) => ({ id, enabled: true }))];
 }

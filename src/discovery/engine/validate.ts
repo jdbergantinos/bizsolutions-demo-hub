@@ -9,6 +9,8 @@ export interface DiscoveryExport {
   discoveries: DiscoveryRecord[];
   workflows: WorkflowComparison[];
   presentations: SalesPresentation[];
+  /** Phase B records (ROI, scopes, roadmaps, meetings, acknowledgments, summaries). */
+  value?: Record<string, unknown[]>;
 }
 
 function isDiscovery(d: unknown): d is DiscoveryRecord {
@@ -54,6 +56,10 @@ export function validateDiscoveryExport(data: unknown): { errors: string[]; pars
   if (!Array.isArray(x.workflows)) errors.push("Missing workflows array.");
   if (!Array.isArray(x.presentations)) errors.push("Missing presentations array.");
   if (errors.length > 0) return { errors };
+
+  if (x.value !== undefined && (typeof x.value !== "object" || x.value === null || Array.isArray(x.value))) {
+    errors.push("value section must be an object of record arrays.");
+  }
 
   const badD = x.discoveries!.filter((d) => !isDiscovery(d)).length;
   const badW = x.workflows!.filter((w) => !isWorkflow(w)).length;

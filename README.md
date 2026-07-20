@@ -145,9 +145,48 @@ The Discovery workflow turns a client meeting into a structured, presentable sol
 All are versioned; the Discovery hub offers validated JSON export/import.
 
 **Phase A limitations**: recommendations are rule-based suggestions, never guarantees;
-role permissions are conceptual demo behavior, not access control; implementation-process
-and next-steps slides are labeled placeholders; time savings are presenter-entered
-estimates.
+role permissions are conceptual demo behavior, not access control; time savings are
+presenter-entered estimates.
+
+## Business Value, Scope & Next Steps (Phase B)
+
+- **ROI & Business-Value Calculator** (`/roi`) — deliberately separate from pricing
+  (pricing = what it could cost; ROI = what value the client might receive). All inputs
+  are client-provided; results are ranges grouped into time savings, cost savings,
+  revenue opportunity, risk reduction, and nonfinancial benefits, with an uncertainty
+  level. The low end of every range assumes only half the stated improvement; recovery
+  rates (appointments 30–70%, leads 25–50%, inventory 30–60%) are illustrative defaults
+  in `src/value/engine/calculateRoi.ts`. Payback/return appear only when a pricing
+  estimate is linked. Every output carries the not-guaranteed disclaimer.
+- **Package Comparison** (`/packages`) — Essential/Growth/Advanced (plus custom packages)
+  side by side with per-package delivery-model overrides; edits save into the estimate.
+- **Preliminary Scope Builder** (`/scope`) — generates included / not-included /
+  responsibilities / open-questions lists from the discovery and estimate (templates in
+  `src/value/config/scopeTemplates.ts`); everything is editable; labeled "for discussion
+  only — not a contract or statement of work." Includes per-module feature-to-value
+  explanations (labeled AI-generated, catalog problem text excepted).
+- **Implementation Roadmap** (`/roadmap`) — 13 default stages
+  (`src/value/config/roadmapStages.ts`) with add/remove/reorder, responsibilities,
+  duration ranges (never dates), and client-dependency/technical-review/milestone flags.
+- **Meetings & Next Steps** (`/meetings`) — meeting records with decisions, concerns, and
+  11 opportunity statuses; a rules-based next-step recommender
+  (`src/value/engine/nextStep.ts`, first-match-wins rules: terminal statuses → technical
+  blockers → sensitive-industry security review → discovery quality → integration/data
+  reviews → sales stage) with manual override. Nothing is sent or scheduled automatically.
+- **Discussion Summary** (`/summary`) — assembles everything into a client or internal
+  summary (copy/print/share/save) plus a **noncontractual client acknowledgment**
+  (choice, name, role, comments; stored locally; explicitly not a signature or commitment).
+- **Presentation integration** — new sections: Business Value & ROI, Preliminary Scope,
+  Client Acknowledgment; the implementation-process and next-steps slides now render the
+  linked roadmap and next-step recommendation. Old saved presentations gain the new
+  sections automatically. Internal figures stay hidden in Client View.
+
+### Phase B storage keys
+
+`bizsolutions.value.roi.v1`, `.scopes.v1`, `.roadmaps.v1`, `.meetings.v1`,
+`.acknowledgments.v1`, `.summaries.v1` — versioned; included in the Discovery hub's
+JSON export/import (invalid imported entries are dropped with readable errors, never
+crashes).
 
 ## Solution & Pricing Configurator
 

@@ -11,10 +11,15 @@ import { LineTable } from "../../pricing/components/pricingUi";
 import { CLIENT_DISCLAIMER } from "../../pricing/config/pricingSettings";
 import { loadEstimates, loadPricingRules, loadPricingSettings } from "../../pricing/store/pricingStorage";
 import type { PresentationSectionId, RoleView, SalesPresentation } from "../types";
-import { SECTION_META } from "../config/sections";
+import { normalizeSections, SECTION_META } from "../config/sections";
 import { getProblem } from "../config/problemCatalog";
 import { getRolesForIndustry } from "../config/roleConfigs";
 import { loadDiscoveries, loadPresentations, loadWorkflows, upsertPresentation } from "../store/discoveryStorage";
+import { meetingRepo, roadmapRepo, roiRepo, scopeRepo } from "../../value/store/valueStorage";
+import { calculateRoi, ROI_DISCLAIMER } from "../../value/engine/calculateRoi";
+import { recommendNextStep } from "../../value/engine/nextStep";
+import { SCOPE_DISCLAIMER } from "../../value/config/scopeTemplates";
+import { ROADMAP_DISCLAIMER } from "../../value/config/roadmapStages";
 
 /**
  * Full-screen guided presentation. Rendered OUTSIDE the app layout, so there
@@ -48,7 +53,8 @@ export function GuidedPresentationPage() {
 
 function Runner({ presentation }: { presentation: SalesPresentation }) {
   const navigate = useNavigate();
-  const sections = presentation.sections.filter((s) => s.enabled);
+  // Presentations saved before Phase B gain its sections automatically.
+  const sections = normalizeSections(presentation.sections).filter((s) => s.enabled);
   const [index, setIndex] = useState(() =>
     Math.min(Math.max(0, presentation.lastSectionIndex), Math.max(0, sections.length - 1)),
   );
@@ -60,6 +66,10 @@ function Runner({ presentation }: { presentation: SalesPresentation }) {
   const discovery = presentation.discoveryId ? loadDiscoveries().find((d) => d.id === presentation.discoveryId) ?? null : null;
   const workflow = presentation.workflowId ? loadWorkflows().find((w) => w.id === presentation.workflowId) ?? null : null;
   const estimate = presentation.estimateId ? loadEstimates().find((e) => e.id === presentation.estimateId) ?? null : null;
+  const roi = presentation.roiId ? roiRepo.loadAll().find((r) => r.id === presentation.roiId) ?? null : null;
+  const scope = presentation.scopeId ? scopeRepo.loadAll().find((s) => s.id === presentation.scopeId) ?? null : null;
+  const roadmap = presentation.roadmapId ? roadmapRepo.loadAll().find((r) => r.id === presentation.roadmapId) ?? null : null;
+  const meeting = presentation.meetingId ? meetingRepo.loadAll().find((m) => m.id === presentation.meetingId) ?? null : null;
   const industry = getIndustry(presentation.industryId);
 
   const go = (dir: -1 | 1) => setIndex((i) => Math.min(sections.length - 1, Math.max(0, i + dir)));
@@ -164,6 +174,10 @@ function Runner({ presentation }: { presentation: SalesPresentation }) {
                 discovery={discovery}
                 workflow={workflow}
                 estimate={estimate}
+                roi={roi}
+                scope={scope}
+                roadmap={roadmap}
+                meeting={meeting}
                 clientView={clientView}
               />
             </div>
@@ -211,13 +225,106 @@ interface SlideProps {
   discovery: ReturnType<typeof loadDiscoveries>[number] | null;
   workflow: ReturnType<typeof loadWorkflows>[number] | null;
   estimate: ReturnType<typeof loadEstimates>[number] | null;
+  roi: ReturnType<typeof roiRepo.loadAll>[number] | null;
+  scope: ReturnType<typeof scopeRepo.loadAll>[number] | null;
+  roadmap: ReturnType<typeof roadmapRepo.loadAll>[number] | null;
+  meeting: ReturnType<typeof meetingRepo.loadAll>[number] | null;
   clientView: boolean;
 }
 
-function Slide({ id, presentation, discovery, workflow, estimate, clientView }: SlideProps) {
+function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, roadmap, meeting, clientView }: SlideProps) {
   const industry = getIndustry(presentation.industryId);
 
   switch (id) {
+    case "business-value": {
+      if (!roi) return <MissingData what="an ROI estimate (ROI & Business Value tool)" />;
+      const linked = roi.pricingEstimateId ? loadEstimates().find((e) => e.id === roi.pricingEstimateId) ?? estimate : estimate;
+      const r = calculateRoi(roi.inputs, linked);
+      return (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
+              <p className="text-lg font-bold text-accent">{pesoRange(r.monthlyValueTotal, "/mo")}</p>
+              <p className="text-xs text-slate-500">Estimated monthly value</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm">
+              <p className="text-lg font-bold text-accent">{pesoRange(r.yearlyValueTotal, "/yr")}</p>
+              <p className="text-xs text-slate-500">Estimated yearly value</p>
+            </div>
+          </div>
+          {r.paybackMonths && (
+            <Card>
+              <p className="text-sm text-slate-700">
+                Estimated payback: <strong>{r.paybackMonths.minimum}–{r.paybackMonths.maximum} months</strong>
+              </p>
+            </Card>
+          )}
+          {[...r.timeSavings, ...r.costSavings, ...r.revenueOpportunity].slice(0, 6).map((l) => (
+            <div key={l.id} className="flex items-baseline justify-between rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm">
+              <span className="text-slate-700">{l.label}</span>
+              <span className="shrink-0 font-semibold text-slate-900">{pesoRange(l.range, "/mo")}</span>
+            </div>
+          ))}
+          <p className="text-xs italic text-slate-400">{ROI_DISCLAIMER}</p>
+        </div>
+      );
+    }
+
+    case "preliminary-scope":
+      if (!scope) return <MissingData what="a preliminary scope (Scope Builder)" />;
+      return (
+        <div className="space-y-3">
+          <Card>
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Included</p>
+            <ul className="mt-1 space-y-0.5 text-sm text-slate-700">
+              {scope.included.map((x) => (
+                <li key={x}>• {x}</li>
+              ))}
+            </ul>
+          </Card>
+          <Card>
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">Not included</p>
+            <ul className="mt-1 space-y-0.5 text-sm text-slate-700">
+              {scope.notIncluded.map((x) => (
+                <li key={x}>• {x}</li>
+              ))}
+            </ul>
+          </Card>
+          {!clientView && scope.openQuestions.length > 0 && (
+            <Card>
+              <p className="text-xs font-semibold uppercase tracking-wide text-violet-600">Open questions (presenter)</p>
+              <ul className="mt-1 space-y-0.5 text-sm text-slate-700">
+                {scope.openQuestions.map((x) => (
+                  <li key={x}>• {x}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+          <p className="text-xs italic text-slate-400">{SCOPE_DISCLAIMER}</p>
+        </div>
+      );
+
+    case "client-acknowledgment":
+      return (
+        <Card>
+          <p className="text-sm text-slate-700">
+            To close today's discussion, we'd like to capture where things stand — for example:
+          </p>
+          <ul className="mt-2 space-y-1.5 text-sm text-slate-700">
+            <li>• This generally reflects our discussion.</li>
+            <li>• Changes are still required.</li>
+            <li>• We would like another demonstration or a technical assessment.</li>
+            <li>• We would like a formal proposal.</li>
+            <li>• We are not ready to proceed.</li>
+          </ul>
+          <p className="mt-3 text-xs text-slate-500">
+            Record the answer on the <strong>Discussion Summary</strong> screen after the presentation.
+          </p>
+          <p className="mt-2 text-xs italic text-slate-400">
+            This acknowledgment is not a contract, purchase order, formal acceptance, or commitment to buy.
+          </p>
+        </Card>
+      );
     case "client-overview":
       return (
         <Card>
@@ -440,9 +547,29 @@ function Slide({ id, presentation, discovery, workflow, estimate, clientView }: 
       );
 
     case "implementation-process":
+      if (roadmap) {
+        return (
+          <Card>
+            <ol className="space-y-2 text-sm text-slate-700">
+              {roadmap.stages.map((s, i) => (
+                <li key={s.id} className="flex items-start gap-3">
+                  <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${s.milestone ? "bg-amber-100 text-amber-700" : "bg-accent-soft text-accent"}`}>
+                    {i + 1}
+                  </span>
+                  <span className="pt-0.5">
+                    {s.title}
+                    <span className="ml-1.5 text-xs text-slate-400">({s.durationRange}{s.clientDependency ? " · needs client" : ""})</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-xs italic text-slate-400">{ROADMAP_DISCLAIMER}</p>
+          </Card>
+        );
+      }
       return (
         <Card>
-          <Pill tone="gray">Outline — placeholder</Pill>
+          <Pill tone="gray">Outline — placeholder (build one in the Roadmap tool)</Pill>
           <ol className="mt-3 space-y-2 text-sm text-slate-700">
             {["Discovery & requirements confirmation", "Configuration & build", "Data setup & review", "Training", "Go-live with support", "Ongoing support & improvements"].map((s, i) => (
               <li key={s} className="flex items-start gap-3">
@@ -451,9 +578,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, clientView }: 
               </li>
             ))}
           </ol>
-          <p className="mt-3 text-xs italic text-slate-400">
-            High-level outline only — the detailed schedule is part of the formal proposal.
-          </p>
+          <p className="mt-3 text-xs italic text-slate-400">{ROADMAP_DISCLAIMER}</p>
         </Card>
       );
 
@@ -467,19 +592,24 @@ function Slide({ id, presentation, discovery, workflow, estimate, clientView }: 
         </Card>
       );
 
-    case "next-steps":
+    case "next-steps": {
+      const rec = recommendNextStep(discovery, meeting, estimate);
       return (
         <Card>
-          <Pill tone="gray">Placeholder — agree together</Pill>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Recommended next step</p>
+          <p className="mt-1 text-lg font-bold text-slate-900">{rec.label}</p>
+          {!clientView && <p className="mt-1 text-xs text-slate-500">{rec.reason}</p>}
           <ul className="mt-3 space-y-2 text-sm text-slate-700">
-            <li>☐ Schedule the detailed discovery session</li>
-            <li>☐ Confirm the priority modules and phase-1 scope</li>
-            <li>☐ Review the preliminary estimate together</li>
-            <li>☐ Agree the target start date</li>
+            <li>• Who: {rec.requiredAttendees}</li>
+            <li>• Preparation: {rec.requiredPreparation}</li>
+            <li>• Outcome: {rec.suggestedOutput}</li>
           </ul>
-          <p className="mt-3 text-xs italic text-slate-400">Edit these into your meeting notes — nothing here is binding.</p>
+          <p className="mt-3 text-xs italic text-slate-400">
+            A suggestion to agree on together — nothing here is binding or scheduled automatically.
+          </p>
         </Card>
       );
+    }
   }
 }
 

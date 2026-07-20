@@ -2,6 +2,7 @@ import { load, remove, save, uid } from "../../utils/storage";
 import type { DiscoveryRecord, SalesPresentation, WorkflowComparison } from "../types";
 import { defaultSections } from "../config/sections";
 import { validateDiscoveryExport, type DiscoveryExport } from "../engine/validate";
+import { exportValueBundle, importValueBundle, type ValueExportBundle } from "../../value/store/valueStorage";
 
 // Versioned repositories for discovery-phase data, following the app's
 // existing "bizsolutions." key convention (covered by full reset).
@@ -184,6 +185,7 @@ export function exportDiscoveryData(): string {
     discoveries: loadDiscoveries(),
     workflows: loadWorkflows(),
     presentations: loadPresentations(),
+    value: exportValueBundle() as unknown as Record<string, unknown[]>,
   };
   return JSON.stringify(data, null, 2);
 }
@@ -207,6 +209,7 @@ export function importDiscoveryData(json: string): { errors: string[]; imported?
   saveItems(DISCOVERY_KEYS.discoveries, mergeById(loadDiscoveries(), data.discoveries));
   saveItems(DISCOVERY_KEYS.workflows, mergeById(loadWorkflows(), data.workflows));
   saveItems(DISCOVERY_KEYS.presentations, mergeById(loadPresentations(), data.presentations));
+  if (data.value) importValueBundle(data.value as unknown as Partial<ValueExportBundle>);
   return {
     errors: [],
     imported: {

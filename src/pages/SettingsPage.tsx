@@ -180,6 +180,12 @@ export function SettingsPage() {
           <li>bizsolutions.discovery.active.v1 — active discovery id</li>
           <li>bizsolutions.discovery.workflows.v1 — workflow comparisons</li>
           <li>bizsolutions.discovery.presentations.v1 — guided presentations</li>
+          <li>bizsolutions.value.roi.v1 — ROI / business-value estimates</li>
+          <li>bizsolutions.value.scopes.v1 — preliminary scopes</li>
+          <li>bizsolutions.value.roadmaps.v1 — implementation roadmaps</li>
+          <li>bizsolutions.value.meetings.v1 — meeting records</li>
+          <li>bizsolutions.value.acknowledgments.v1 — client acknowledgments</li>
+          <li>bizsolutions.value.summaries.v1 — saved discussion summaries</li>
         </ul>
       </section>
 

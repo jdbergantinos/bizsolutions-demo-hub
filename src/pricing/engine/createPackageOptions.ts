@@ -85,5 +85,6 @@ export function inputForPackage(input: EstimateInput, pkg: PackageOption): Estim
     selectedOptionalServiceIds: pkg.optionalServiceIds,
     configurationLevel: pkg.configurationLevel,
     supportPlanId: pkg.supportPlanId,
+    deliveryModel: pkg.deliveryModel ?? input.deliveryModel,
   };
 }

@@ -228,6 +228,12 @@ export function EstimateViewPage() {
             Regenerate packages
           </button>
           <button
+            onClick={() => navigate(`/packages?estimate=${estimate.id}`)}
+            className="min-h-10 rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-600 hover:bg-slate-50"
+          >
+            Full comparison view
+          </button>
+          <button
             onClick={() =>
               copyText(
                 buildPackageComparison(
