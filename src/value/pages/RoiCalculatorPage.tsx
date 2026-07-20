@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Copy, MonitorPlay, RotateCcw, TrendingUp } from "lucide-react";
 import { useToast } from "../../store/ToastContext";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { HelpTip } from "../../components/common/HelpTip";
 import { Pill } from "../../components/common/Badge";
 import { pesoRange } from "../../pricing/engine/money";
 import { loadEstimates } from "../../pricing/store/pricingStorage";
@@ -142,13 +143,14 @@ export function RoiCalculatorPage() {
           <Num label="Average process delay (days)" value={roi.inputs.averageProcessDelayDays} onChange={(v) => set({ averageProcessDelayDays: v })} />
           <Num label="Assumed improvement (%)" value={roi.inputs.improvementPct} onChange={(v) => set({ improvementPct: Math.min(90, v) })} />
         </div>
-        <L label="Client-provided assumptions">
+        <L label="Client-provided assumptions" help="Any context the client gave that shapes these numbers (e.g. 'mornings are busiest'). This appears in the client summary.">
           <textarea value={roi.inputs.clientAssumptions} onChange={(e) => set({ clientAssumptions: e.target.value })} rows={2} placeholder="e.g. Staff spend most mornings on manual encoding" className={`${inputCls} py-2`} />
         </L>
-        <L label="Presenter notes (internal)">
+        <L label="Presenter notes (internal)" help="Your private notes about these figures — never shown to the client.">
           <textarea value={roi.inputs.presenterNotes} onChange={(e) => set({ presenterNotes: e.target.value })} rows={2} placeholder="e.g. Numbers came from the owner — verify with the manager" className={`${inputCls} py-2`} />
         </L>
-        <L label="Link a pricing estimate (enables payback & return)">
+        <L label="Link a pricing estimate (enables payback & return)" help="Pick this client's saved estimate to unlock payback time and first-year return, which compare the value above against the cost.">
+
           <select value={roi.pricingEstimateId ?? ""} onChange={(e) => setRoi((r) => ({ ...r, pricingEstimateId: e.target.value || undefined }))} className={inputCls}>
             <option value="">— None —</option>
             {estimates.map((e) => (
@@ -241,9 +243,27 @@ const NUM_SAMPLES: Record<string, string> = {
   "Assumed improvement (%)": "e.g. 30",
 };
 
+// How to get each value — shown in the hover/tap help icon beside the label.
+const NUM_HELP: Record<string, string> = {
+  "Employees doing manual work": "How many staff spend real time on manual work the system would automate — encoding, counting stock, chasing follow-ups.",
+  "Manual hours / employee / week": "Roughly how many hours each of those staff spends per week on that manual work.",
+  "Average employee monthly cost (₱)": "A typical monthly salary for those staff. Used only to turn saved hours into a peso value.",
+  "Report preparation hours / week": "Hours spent each week building reports by hand (sales summaries, stock counts) that a dashboard would replace.",
+  "Missed appointments / month": "Roughly how many booked appointments are no-shows or forgotten each month.",
+  "Value per appointment (₱)": "Average revenue from one appointment or booking. Used to estimate recovered no-shows.",
+  "Lost / forgotten leads / month": "How many inquiries go unanswered or forgotten each month.",
+  "Value per converted lead (₱)": "The average sale value when a lead becomes a paying customer.",
+  "Inventory loss / discrepancy per month (₱)": "Estimated peso value of stock lost, spoiled, or unaccounted for each month.",
+  "Delayed collections outstanding (₱)": "Total amount currently overdue or uncollected. This is a one-time cash-flow effect, not monthly income.",
+  "Paper / printing / comms per month (₱)": "Monthly spend on paper, printing, and SMS/load that the system would reduce.",
+  "Repeated data-entry hours / week": "Hours per week spent typing the same information into more than one place.",
+  "Average process delay (days)": "Typical waiting time inside a process — e.g. days from inquiry to quotation. Shown as a turnaround benefit, not pesos.",
+  "Assumed improvement (%)": "How much of this waste you expect to remove, as a percentage. Results' low end assumes only half of this — keep it realistic (20–40%).",
+};
+
 function Num({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
-    <L label={label}>
+    <L label={label} help={NUM_HELP[label]}>
       <input
         type="number"
         min={0}
@@ -256,10 +276,13 @@ function Num({ label, value, onChange }: { label: string; value: number; onChang
   );
 }
 
-function L({ label, children }: { label: string; children: React.ReactNode }) {
+function L({ label, help, children }: { label: string; help?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>
+      <span className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
+        {label}
+        {help && <HelpTip text={help} />}
+      </span>
       {children}
     </label>
   );
