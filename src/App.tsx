@@ -21,6 +21,7 @@ import { RecommendationsPage } from "./discovery/pages/RecommendationsPage";
 import { WorkflowComparisonPage } from "./discovery/pages/WorkflowComparisonPage";
 import { PresentationBuilderPage } from "./discovery/pages/PresentationBuilderPage";
 import { GuidedPresentationPage } from "./discovery/pages/GuidedPresentationPage";
+import { ClientIntakePage } from "./discovery/pages/ClientIntakePage";
 import { RoiCalculatorPage } from "./value/pages/RoiCalculatorPage";
 import { PackageComparisonPage } from "./value/pages/PackageComparisonPage";
 import { ScopeBuilderPage } from "./value/pages/ScopeBuilderPage";
@@ -47,6 +48,9 @@ export default function App() {
         {/* Full-screen guided presentation — outside the app chrome so there
             is no navigation to tap accidentally while presenting. */}
         <Route path="presentation" element={<GuidedPresentationPage />} />
+        {/* Client intake — full-screen and outside the app chrome so a client
+            filling it in cannot reach pricing, other clients, or settings. */}
+        <Route path="intake" element={<ClientIntakePage />} />
         <Route element={<AppLayout />}>
           <Route index element={<HomePage />} />
           <Route path="industries" element={<IndustriesPage />} />

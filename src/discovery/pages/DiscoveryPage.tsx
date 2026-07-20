@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, ClipboardList, Copy, Download, FileCheck2, FileText,
   GitCompareArrows, Lightbulb, Map, MonitorPlay, NotebookPen, Package, Plus,
-  RotateCcw, Save, ScanSearch, Trash2, TrendingUp, Upload, UserPlus,
+  RotateCcw, Save, ScanSearch, Smartphone, Trash2, TrendingUp, Upload, UserPlus,
 } from "lucide-react";
 import { getIndustry, INDUSTRIES } from "../../data/catalog";
 import { useApp } from "../../store/AppStore";
@@ -163,6 +163,13 @@ function DiscoveryHub({
         className="flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-accent text-sm font-bold text-white hover:opacity-90"
       >
         <Plus className="h-5 w-5" /> New discovery interview
+      </button>
+
+      <button
+        onClick={() => navigate("/intake")}
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50"
+      >
+        <Smartphone className="h-5 w-5" /> Hand to client for intake
       </button>
 
       <div className="grid grid-cols-2 gap-2">
