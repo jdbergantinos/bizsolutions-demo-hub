@@ -10,6 +10,9 @@ real data.
 > **Demonstration only — no real data is stored or transmitted.** All names, businesses, and
 > records are fictional sample data. See [Demo limitations and safety](#demo-limitations-and-safety).
 
+**Live app:** https://jdbergantinos.github.io/bizsolutions-demo-hub/
+(deployed from the `gh-pages` branch — rebuild with `npm run build` and push `dist/` there to update)
+
 ---
 
 ## Technology
