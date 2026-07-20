@@ -36,6 +36,8 @@ export function GuidedPresentationPage() {
     return (id ? all.find((x) => x.id === id) : all[0]) ?? null;
   }, [params]);
 
+  const preview = params.get("preview") === "1";
+
   if (!presentation) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-slate-900 p-6 text-center text-white">
@@ -48,35 +50,52 @@ export function GuidedPresentationPage() {
     );
   }
 
-  return <Runner presentation={presentation} />;
+  return <Runner presentation={presentation} startInPresenterView={preview} />;
 }
 
-function Runner({ presentation }: { presentation: SalesPresentation }) {
+function Runner({ presentation, startInPresenterView }: { presentation: SalesPresentation; startInPresenterView: boolean }) {
   const navigate = useNavigate();
+  // Held in state so "Hide this section" can update the running presentation.
+  const [pres, setPres] = useState(presentation);
   // Presentations saved before Phase B gain its sections automatically.
-  const sections = normalizeSections(presentation.sections).filter((s) => s.enabled);
+  const sections = normalizeSections(pres.sections).filter((s) => s.enabled);
   const [index, setIndex] = useState(() =>
-    Math.min(Math.max(0, presentation.lastSectionIndex), Math.max(0, sections.length - 1)),
+    Math.min(Math.max(0, pres.lastSectionIndex), Math.max(0, sections.length - 1)),
   );
-  const [clientView, setClientView] = useState(true);
+  // Preview from the builder opens in presenter view (setup prompts visible);
+  // a live "Start" opens clean in client view.
+  const [clientView, setClientView] = useState(!startInPresenterView);
   const [notesOpen, setNotesOpen] = useState(false);
   const [confirmExit, setConfirmExit] = useState(false);
   const touchX = useRef<number | null>(null);
 
-  const discovery = presentation.discoveryId ? loadDiscoveries().find((d) => d.id === presentation.discoveryId) ?? null : null;
-  const workflow = presentation.workflowId ? loadWorkflows().find((w) => w.id === presentation.workflowId) ?? null : null;
-  const estimate = presentation.estimateId ? loadEstimates().find((e) => e.id === presentation.estimateId) ?? null : null;
-  const roi = presentation.roiId ? roiRepo.loadAll().find((r) => r.id === presentation.roiId) ?? null : null;
-  const scope = presentation.scopeId ? scopeRepo.loadAll().find((s) => s.id === presentation.scopeId) ?? null : null;
-  const roadmap = presentation.roadmapId ? roadmapRepo.loadAll().find((r) => r.id === presentation.roadmapId) ?? null : null;
-  const meeting = presentation.meetingId ? meetingRepo.loadAll().find((m) => m.id === presentation.meetingId) ?? null : null;
-  const industry = getIndustry(presentation.industryId);
+  const discovery = pres.discoveryId ? loadDiscoveries().find((d) => d.id === pres.discoveryId) ?? null : null;
+  const workflow = pres.workflowId ? loadWorkflows().find((w) => w.id === pres.workflowId) ?? null : null;
+  const estimate = pres.estimateId ? loadEstimates().find((e) => e.id === pres.estimateId) ?? null : null;
+  const roi = pres.roiId ? roiRepo.loadAll().find((r) => r.id === pres.roiId) ?? null : null;
+  const scope = pres.scopeId ? scopeRepo.loadAll().find((s) => s.id === pres.scopeId) ?? null : null;
+  const roadmap = pres.roadmapId ? roadmapRepo.loadAll().find((r) => r.id === pres.roadmapId) ?? null : null;
+  const meeting = pres.meetingId ? meetingRepo.loadAll().find((m) => m.id === pres.meetingId) ?? null : null;
+  const industry = getIndustry(pres.industryId);
 
   const go = (dir: -1 | 1) => setIndex((i) => Math.min(sections.length - 1, Math.max(0, i + dir)));
 
+  // Hide an empty (or unwanted) section so it drops out of the presentation.
+  const hideSection = (sectionId: PresentationSectionId) => {
+    const updated = {
+      ...pres,
+      sections: pres.sections.map((s) => (s.id === sectionId ? { ...s, enabled: false } : s)),
+      updatedAt: new Date().toISOString(),
+    };
+    setPres(updated);
+    upsertPresentation(updated);
+    // The list just shrank by one; keep the position in range.
+    setIndex((i) => Math.max(0, Math.min(i, sections.length - 2)));
+  };
+
   // Continue-from-here: remember the last section viewed.
   useEffect(() => {
-    upsertPresentation({ ...presentation, lastSectionIndex: index, updatedAt: new Date().toISOString() });
+    upsertPresentation({ ...pres, lastSectionIndex: index, updatedAt: new Date().toISOString() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index]);
 
@@ -97,7 +116,7 @@ function Runner({ presentation }: { presentation: SalesPresentation }) {
   return (
     <div
       className="flex min-h-dvh flex-col bg-slate-100"
-      style={presentation.accentColor ? ({ "--app-accent": presentation.accentColor, "--app-accent-soft": "#eef2f7" } as React.CSSProperties) : undefined}
+      style={pres.accentColor ? ({ "--app-accent": pres.accentColor, "--app-accent-soft": "#eef2f7" } as React.CSSProperties) : undefined}
       onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
       onTouchEnd={(e) => {
         if (touchX.current === null) return;
@@ -108,17 +127,17 @@ function Runner({ presentation }: { presentation: SalesPresentation }) {
     >
       {/* Top bar */}
       <header className="flex items-center gap-3 border-b border-slate-200 bg-white px-4 py-2.5">
-        {presentation.logo ? (
-          <img src={presentation.logo} alt="" className="h-9 w-9 rounded-lg object-cover" />
+        {pres.logo ? (
+          <img src={pres.logo} alt="" className="h-9 w-9 rounded-lg object-cover" />
         ) : (
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-sm font-bold text-white">
-            {presentation.businessName.slice(0, 1).toUpperCase() || "?"}
+            {pres.businessName.slice(0, 1).toUpperCase() || "?"}
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold text-slate-900">{presentation.businessName}</p>
+          <p className="truncate text-sm font-bold text-slate-900">{pres.businessName}</p>
           <p className="truncate text-[11px] text-slate-400">
-            Concept demonstration for {presentation.businessName || "the client"}
+            Concept demonstration for {pres.businessName || "the client"}
             {industry ? ` · ${industry.name}` : ""}
           </p>
         </div>
@@ -164,13 +183,13 @@ function Runner({ presentation }: { presentation: SalesPresentation }) {
               <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
                 <p className="text-xs font-bold uppercase tracking-wide">Presenter notes</p>
                 <p className="mt-1">{meta.presenterTip}</p>
-                {presentation.presenterNotes && <p className="mt-2 border-t border-amber-200 pt-2">{presentation.presenterNotes}</p>}
+                {pres.presenterNotes && <p className="mt-2 border-t border-amber-200 pt-2">{pres.presenterNotes}</p>}
               </div>
             )}
             <div className="mt-4">
               <Slide
                 id={section.id}
-                presentation={presentation}
+                presentation={pres}
                 discovery={discovery}
                 workflow={workflow}
                 estimate={estimate}
@@ -179,6 +198,7 @@ function Runner({ presentation }: { presentation: SalesPresentation }) {
                 roadmap={roadmap}
                 meeting={meeting}
                 clientView={clientView}
+                onHide={hideSection}
               />
             </div>
           </>
@@ -230,14 +250,19 @@ interface SlideProps {
   roadmap: ReturnType<typeof roadmapRepo.loadAll>[number] | null;
   meeting: ReturnType<typeof meetingRepo.loadAll>[number] | null;
   clientView: boolean;
+  onHide: (id: PresentationSectionId) => void;
 }
 
-function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, roadmap, meeting, clientView }: SlideProps) {
+function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, roadmap, meeting, clientView, onHide }: SlideProps) {
   const industry = getIndustry(presentation.industryId);
+  // An empty section renders a presenter-only prompt to set it up or hide it.
+  const empty = (sectionId: PresentationSectionId) => (
+    <EmptySection sectionId={sectionId} presentationId={presentation.id} clientView={clientView} onHide={onHide} />
+  );
 
   switch (id) {
     case "business-value": {
-      if (!roi) return <MissingData what="an ROI estimate (ROI & Business Value tool)" />;
+      if (!roi) return empty(id);
       const linked = roi.pricingEstimateId ? loadEstimates().find((e) => e.id === roi.pricingEstimateId) ?? estimate : estimate;
       const r = calculateRoi(roi.inputs, linked);
       return (
@@ -271,7 +296,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
     }
 
     case "preliminary-scope":
-      if (!scope) return <MissingData what="a preliminary scope (Scope Builder)" />;
+      if (!scope) return empty(id);
       return (
         <div className="space-y-3">
           <Card>
@@ -351,7 +376,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
       );
 
     case "current-challenges":
-      if (!discovery) return <MissingData what="a discovery record" />;
+      if (!discovery) return empty(id);
       return (
         <Card>
           <ul className="space-y-3 text-sm text-slate-700">
@@ -377,7 +402,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
       );
 
     case "business-problems": {
-      if (!discovery || discovery.problems.length === 0) return <MissingData what="selected problems (Problem Scanner)" />;
+      if (!discovery || discovery.problems.length === 0) return empty(id);
       const tone = { minor: "gray", moderate: "blue", major: "amber", critical: "red" } as const;
       return (
         <div className="space-y-2">
@@ -402,7 +427,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
     }
 
     case "current-workflow":
-      if (!workflow) return <MissingData what="a workflow comparison" />;
+      if (!workflow) return empty(id);
       return (
         <div className="space-y-1.5">
           {workflow.current.map((s, i) => (
@@ -424,7 +449,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
       );
 
     case "proposed-workflow":
-      if (!workflow) return <MissingData what="a workflow comparison" />;
+      if (!workflow) return empty(id);
       return (
         <div className="space-y-1.5">
           {workflow.proposed.map((s, i) => (
@@ -447,7 +472,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
       const recs = discovery?.recommendationSet?.recommendations.filter(
         (r) => r.decision === "accepted" || (r.tier === "recommended" && r.decision === "pending"),
       );
-      if (!recs || recs.length === 0) return <MissingData what="a recommendation set (Recommendations screen)" />;
+      if (!recs || recs.length === 0) return empty(id);
       return (
         <div className="space-y-2">
           {recs.map((r) => {
@@ -473,7 +498,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
     }
 
     case "interactive-demo":
-      if (presentation.demoServiceIds.length === 0) return <MissingData what="featured demos (Presentation Builder)" />;
+      if (presentation.demoServiceIds.length === 0) return empty(id);
       return (
         <div className="space-y-2">
           {presentation.demoServiceIds.map((id) => {
@@ -505,7 +530,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
       return <RoleViewsSlide industryId={presentation.industryId} />;
 
     case "package-comparison": {
-      if (!estimate) return <MissingData what="a pricing estimate (Presentation Builder → Content sources)" />;
+      if (!estimate) return empty(id);
       const rules = loadPricingRules();
       const settings = loadPricingSettings();
       return (
@@ -531,7 +556,7 @@ function Slide({ id, presentation, discovery, workflow, estimate, roi, scope, ro
     }
 
     case "preliminary-pricing":
-      if (!estimate) return <MissingData what="a pricing estimate (Presentation Builder → Content sources)" />;
+      if (!estimate) return empty(id);
       return (
         <div className="space-y-4">
           <Card>
@@ -678,11 +703,99 @@ function Info({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MissingData({ what }: { what: string }) {
+/**
+ * Per-section guidance for empty slides: what to add, and which Presentation
+ * Builder field to jump to (`focus` matches the anchor keys in the builder).
+ */
+const SECTION_SETUP: Partial<Record<PresentationSectionId, { focus: string; guide: string }>> = {
+  "interactive-demo": {
+    focus: "demos",
+    guide: "Choose which demo modules to feature under 'Demos to feature'.",
+  },
+  "business-value": {
+    focus: "roi",
+    guide: "Show projected savings. Build an ROI estimate in the ROI & Business Value tool, then attach it under 'ROI / business-value estimate'.",
+  },
+  "preliminary-scope": {
+    focus: "scope",
+    guide: "List what's included. Build a preliminary scope in the Scope Builder, then attach it under 'Preliminary scope'.",
+  },
+  "current-challenges": {
+    focus: "discovery",
+    guide: "Pull in the client's current challenges by linking their discovery record under 'Discovery record'.",
+  },
+  "business-problems": {
+    focus: "discovery",
+    guide: "Show the client's problems. Rate them in the Problem Scanner (saved to the discovery), then link that discovery under 'Discovery record'.",
+  },
+  "current-workflow": {
+    focus: "workflow",
+    guide: "Show today's workflow. Build one in Workflow Comparison, then attach it under 'Workflow comparison'.",
+  },
+  "proposed-workflow": {
+    focus: "workflow",
+    guide: "Show the improved workflow. Build one in Workflow Comparison, then attach it under 'Workflow comparison'.",
+  },
+  "recommended-solution": {
+    focus: "discovery",
+    guide: "Show recommended modules. Accept recommendations on the Recommendations screen, then link that discovery under 'Discovery record'.",
+  },
+  "package-comparison": {
+    focus: "estimate",
+    guide: "Show package pricing. Build a pricing estimate in the Pricing Configurator, then attach it under 'Pricing estimate'.",
+  },
+  "preliminary-pricing": {
+    focus: "estimate",
+    guide: "Show the price breakdown. Build a pricing estimate in the Pricing Configurator, then attach it under 'Pricing estimate'.",
+  },
+};
+
+/**
+ * Placeholder shown for a section with no content. In client view it stays
+ * quiet; in presenter view it guides the presenter to fill the section in
+ * (jumping to the right Builder field) or hide it so the client never sees it.
+ */
+function EmptySection({
+  sectionId,
+  presentationId,
+  clientView,
+  onHide,
+}: {
+  sectionId: PresentationSectionId;
+  presentationId: string;
+  clientView: boolean;
+  onHide: (id: PresentationSectionId) => void;
+}) {
+  const navigate = useNavigate();
+  const setup = SECTION_SETUP[sectionId];
+
+  if (clientView || !setup) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
+        <p className="text-sm text-slate-400">Details to follow.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center">
       <p className="text-sm font-medium text-slate-600">This section isn't set up yet</p>
-      <p className="mt-1 text-xs text-slate-400">Link {what} in the Presentation Builder, or hide this section.</p>
+      <p className="mx-auto mt-1 max-w-md text-xs text-slate-500">{setup.guide}</p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <button
+          onClick={() => navigate(`/presentation-builder?id=${presentationId}&focus=${setup.focus}`)}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-accent px-3 text-xs font-semibold text-white hover:opacity-90"
+        >
+          <ExternalLink className="h-3.5 w-3.5" /> Set up this section
+        </button>
+        <button
+          onClick={() => onHide(sectionId)}
+          className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-600 hover:bg-slate-50"
+        >
+          <EyeOff className="h-3.5 w-3.5" /> Hide this section
+        </button>
+      </div>
+      <p className="mt-3 text-[11px] text-slate-400">Only you see this — your client never sees setup controls.</p>
     </div>
   );
 }
