@@ -281,6 +281,7 @@ function ProblemEditor({
             value={selection.note}
             onChange={(e) => onChange({ ...selection, note: e.target.value })}
             rows={2}
+            placeholder='e.g. Client: "this costs us sales every single week"'
             className="min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
           />
         </label>
@@ -327,7 +328,7 @@ function CustomProblemModal({ onAdd, onClose }: { onAdd: (title: string, categor
       <div className="space-y-3">
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-slate-600">Problem title</span>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} className="min-h-11 w-full rounded-xl border border-slate-300 px-3 text-sm" />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Suppliers deliver late without warning" className="min-h-11 w-full rounded-xl border border-slate-300 px-3 text-sm" />
         </label>
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-slate-600">Category</span>

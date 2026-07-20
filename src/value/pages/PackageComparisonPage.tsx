@@ -256,7 +256,7 @@ function PackageForm({ pkg, estimate, onSave }: { pkg: PackageOption; estimate: 
   return (
     <div className="space-y-3">
       <L label="Package name">
-        <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className={inputCls} />
+        <input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} placeholder="e.g. Starter package" className={inputCls} />
       </L>
       <L label="Delivery model (this package)">
         <select

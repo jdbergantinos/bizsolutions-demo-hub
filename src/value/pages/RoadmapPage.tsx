@@ -65,7 +65,7 @@ export function RoadmapPage() {
       </header>
 
       <div className="flex flex-wrap gap-2">
-        <input value={roadmap.name} onChange={(e) => set({ name: e.target.value })} aria-label="Roadmap name" className={`${inputCls} flex-1 sm:max-w-xs`} />
+        <input value={roadmap.name} onChange={(e) => set({ name: e.target.value })} aria-label="Roadmap name" placeholder="e.g. Roadmap — Bella Salon" className={`${inputCls} flex-1 sm:max-w-xs`} />
         <button onClick={addToPresentation} className="inline-flex min-h-11 items-center gap-1 rounded-xl border border-slate-300 px-3 text-sm font-medium text-slate-600 hover:bg-slate-50">
           <MonitorPlay className="h-4 w-4" /> Add to presentation
         </button>
@@ -120,8 +120,8 @@ export function RoadmapPage() {
       {editStage && (
         <Modal title="Edit stage" onClose={() => setEditStage(null)}>
           <div className="space-y-3">
-            <L label="Stage title"><input value={editStage.title} onChange={(e) => updateStage({ ...editStage, title: e.target.value })} className={inputCls} /></L>
-            <L label="Description"><textarea value={editStage.description} onChange={(e) => updateStage({ ...editStage, description: e.target.value })} rows={2} className={`${inputCls} py-2`} /></L>
+            <L label="Stage title"><input value={editStage.title} onChange={(e) => updateStage({ ...editStage, title: e.target.value })} placeholder="e.g. Client acceptance testing" className={inputCls} /></L>
+            <L label="Description"><textarea value={editStage.description} onChange={(e) => updateStage({ ...editStage, description: e.target.value })} rows={2} placeholder="e.g. Client verifies the flows against agreed scenarios" className={`${inputCls} py-2`} /></L>
             <div className="grid grid-cols-2 gap-3">
               <L label="Responsible party">
                 <select value={editStage.responsible} onChange={(e) => updateStage({ ...editStage, responsible: e.target.value })} className={inputCls}>

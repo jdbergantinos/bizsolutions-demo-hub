@@ -174,14 +174,14 @@ export function SummaryPage() {
           ))}
           <div className="grid grid-cols-2 gap-3">
             <L label="Client representative name">
-              <input value={ackName} onChange={(e) => setAckName(e.target.value)} className={inputCls} />
+              <input value={ackName} onChange={(e) => setAckName(e.target.value)} placeholder="e.g. Maria Santos" className={inputCls} />
             </L>
             <L label="Role">
-              <input value={ackRole} onChange={(e) => setAckRole(e.target.value)} className={inputCls} />
+              <input value={ackRole} onChange={(e) => setAckRole(e.target.value)} placeholder="e.g. Owner" className={inputCls} />
             </L>
           </div>
           <L label="Comments">
-            <textarea value={ackComments} onChange={(e) => setAckComments(e.target.value)} rows={2} className={`${inputCls} py-2`} />
+            <textarea value={ackComments} onChange={(e) => setAckComments(e.target.value)} rows={2} placeholder="e.g. Please show the staff screens to the team next visit" className={`${inputCls} py-2`} />
           </L>
           <button
             onClick={() => {

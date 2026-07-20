@@ -96,21 +96,21 @@ function AssessmentModal({ integration, existing, onClose }: { integration: Inte
   const [a, setA] = useState<IntegrationAssessment>(existing ?? newAssessment(integration.id));
   const set = (patch: Partial<IntegrationAssessment>) => setA((x) => ({ ...x, ...patch }));
 
-  const fields: { key: keyof IntegrationAssessment; label: string }[] = [
-    { key: "clientName", label: "Client" },
-    { key: "existingProvider", label: "Existing provider" },
-    { key: "accountOwnership", label: "Who owns the account?" },
-    { key: "apiAvailable", label: "API available?" },
-    { key: "documentationAvailable", label: "Documentation available?" },
-    { key: "sandboxAvailable", label: "Sandbox / test environment?" },
-    { key: "requiredData", label: "Required data" },
-    { key: "dataDirection", label: "Data direction (in / out / both)" },
-    { key: "frequency", label: "Frequency (real-time / hourly / daily)" },
-    { key: "expectedVolume", label: "Expected volume" },
-    { key: "authenticationType", label: "Authentication type" },
-    { key: "errorHandlingExpectation", label: "Error-handling expectation" },
-    { key: "securityRequirement", label: "Security requirement" },
-    { key: "technicalContact", label: "Responsible technical contact" },
+  const fields: { key: keyof IntegrationAssessment; label: string; ph: string }[] = [
+    { key: "clientName", label: "Client", ph: "e.g. Bella Salon & Spa" },
+    { key: "existingProvider", label: "Existing provider", ph: "e.g. Globe Labs SMS gateway" },
+    { key: "accountOwnership", label: "Who owns the account?", ph: "e.g. The client (owner's email)" },
+    { key: "apiAvailable", label: "API available?", ph: "e.g. Yes — REST API v2" },
+    { key: "documentationAvailable", label: "Documentation available?", ph: "e.g. Yes, public developer docs" },
+    { key: "sandboxAvailable", label: "Sandbox / test environment?", ph: "e.g. Yes, free test account" },
+    { key: "requiredData", label: "Required data", ph: "e.g. Customer name, mobile number, message" },
+    { key: "dataDirection", label: "Data direction (in / out / both)", ph: "e.g. Outgoing only" },
+    { key: "frequency", label: "Frequency (real-time / hourly / daily)", ph: "e.g. Real-time on booking" },
+    { key: "expectedVolume", label: "Expected volume", ph: "e.g. ~600 messages per month" },
+    { key: "authenticationType", label: "Authentication type", ph: "e.g. API key" },
+    { key: "errorHandlingExpectation", label: "Error-handling expectation", ph: "e.g. Retry once, then alert staff" },
+    { key: "securityRequirement", label: "Security requirement", ph: "e.g. Don't store message content" },
+    { key: "technicalContact", label: "Responsible technical contact", ph: "e.g. Provider's support engineer (ticket system)" },
   ];
 
   return (
@@ -123,13 +123,13 @@ function AssessmentModal({ integration, existing, onClose }: { integration: Inte
           {fields.map((f) => (
             <label key={f.key} className="block">
               <span className="mb-1 block text-xs font-medium text-slate-600">{f.label}</span>
-              <input value={String(a[f.key] ?? "")} onChange={(e) => set({ [f.key]: e.target.value } as Partial<IntegrationAssessment>)} className={inputCls} />
+              <input value={String(a[f.key] ?? "")} onChange={(e) => set({ [f.key]: e.target.value } as Partial<IntegrationAssessment>)} placeholder={f.ph} className={inputCls} />
             </label>
           ))}
         </div>
         <label className="block">
           <span className="mb-1 block text-xs font-medium text-slate-600">Notes</span>
-          <textarea value={a.notes} onChange={(e) => set({ notes: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+          <textarea value={a.notes} onChange={(e) => set({ notes: e.target.value })} rows={2} placeholder="e.g. Client already pays for 1,000 credits/month" className={`${inputCls} py-2`} />
         </label>
         <button
           onClick={() => {

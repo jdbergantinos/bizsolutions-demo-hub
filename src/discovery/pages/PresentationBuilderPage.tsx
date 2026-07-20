@@ -169,8 +169,8 @@ export function PresentationBuilderPage() {
       <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Client & meeting</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <L label="Presentation title"><input value={p.title} onChange={(e) => set({ title: e.target.value })} className={inputCls} /></L>
-          <L label="Client business name"><input value={p.businessName} onChange={(e) => set({ businessName: e.target.value })} className={inputCls} /></L>
+          <L label="Presentation title"><input value={p.title} onChange={(e) => set({ title: e.target.value })} placeholder="e.g. Proposal for Bella Salon" className={inputCls} /></L>
+          <L label="Client business name"><input value={p.businessName} onChange={(e) => set({ businessName: e.target.value })} placeholder="e.g. Bella Salon & Spa" className={inputCls} /></L>
           <L label="Industry">
             <select value={p.industryId} onChange={(e) => set({ industryId: e.target.value, businessExample: "" })} className={inputCls}>
               <option value="">— Select —</option>
@@ -187,13 +187,13 @@ export function PresentationBuilderPage() {
               ))}
             </select>
           </L>
-          <L label="Client location"><input value={p.location} onChange={(e) => set({ location: e.target.value })} className={inputCls} /></L>
-          <L label="Presenter name"><input value={p.presenterName} onChange={(e) => set({ presenterName: e.target.value })} className={inputCls} /></L>
+          <L label="Client location"><input value={p.location} onChange={(e) => set({ location: e.target.value })} placeholder="e.g. Olongapo City" className={inputCls} /></L>
+          <L label="Presenter name"><input value={p.presenterName} onChange={(e) => set({ presenterName: e.target.value })} placeholder="e.g. John" className={inputCls} /></L>
           <L label="Meeting date"><input type="date" value={p.meetingDate} onChange={(e) => set({ meetingDate: e.target.value })} className={inputCls} /></L>
           <L label="Meeting purpose"><input value={p.meetingPurpose} onChange={(e) => set({ meetingPurpose: e.target.value })} placeholder="e.g. First solution presentation" className={inputCls} /></L>
         </div>
         <L label="Presenter-only notes (never shown in client view)">
-          <textarea value={p.presenterNotes} onChange={(e) => set({ presenterNotes: e.target.value })} rows={2} className={`${inputCls} py-2`} />
+          <textarea value={p.presenterNotes} onChange={(e) => set({ presenterNotes: e.target.value })} rows={2} placeholder="e.g. Lead with no-shows; the owner's sister handles the books" className={`${inputCls} py-2`} />
         </L>
       </section>
 

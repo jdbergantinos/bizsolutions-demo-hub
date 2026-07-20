@@ -178,19 +178,19 @@ function HistoryEditor({ record, onSaved, onExit }: { record: PresentationHistor
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [r]);
 
-  const fields: { key: keyof PresentationHistoryRecord; label: string; area?: boolean }[] = [
-    { key: "attendees", label: "Attendees" },
-    { key: "problemsDiscussed", label: "Problems discussed", area: true },
-    { key: "modulesShown", label: "Modules shown" },
-    { key: "scenariosShown", label: "Demo scenarios shown" },
-    { key: "roleViewsShown", label: "Role views shown" },
-    { key: "packagePresented", label: "Package presented" },
-    { key: "questions", label: "Questions", area: true },
-    { key: "objections", label: "Objections", area: true },
-    { key: "decisions", label: "Decisions", area: true },
-    { key: "nextStep", label: "Next step" },
-    { key: "outcome", label: "Outcome" },
-    { key: "notes", label: "Notes", area: true },
+  const fields: { key: keyof PresentationHistoryRecord; label: string; area?: boolean; ph: string }[] = [
+    { key: "attendees", label: "Attendees", ph: "e.g. Owner, branch manager, head cashier" },
+    { key: "problemsDiscussed", label: "Problems discussed", area: true, ph: "e.g. No-shows, stock-outs, slow reports" },
+    { key: "modulesShown", label: "Modules shown", ph: "e.g. Booking, inventory, dashboard" },
+    { key: "scenariosShown", label: "Demo scenarios shown", ph: "e.g. Low-stock, missed appointment" },
+    { key: "roleViewsShown", label: "Role views shown", ph: "e.g. Owner, cashier" },
+    { key: "packagePresented", label: "Package presented", ph: "e.g. Growth (recommended)" },
+    { key: "questions", label: "Questions", area: true, ph: "e.g. Can staff use their own phones?" },
+    { key: "objections", label: "Objections", area: true, ph: "e.g. Worried the team won't adapt" },
+    { key: "decisions", label: "Decisions", area: true, ph: "e.g. Wants the spouse to see the demo first" },
+    { key: "nextStep", label: "Next step", ph: "e.g. Prepare formal proposal" },
+    { key: "outcome", label: "Outcome", ph: "e.g. Very positive — asked about start dates" },
+    { key: "notes", label: "Notes", area: true, ph: "e.g. Best time to call: mornings before opening" },
   ];
 
   return (
@@ -201,7 +201,7 @@ function HistoryEditor({ record, onSaved, onExit }: { record: PresentationHistor
       <h1 className="text-xl font-bold text-slate-900">Presentation Record</h1>
       <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-2 gap-3">
-          <L label="Client"><input value={r.clientName} onChange={(e) => set({ clientName: e.target.value })} className={inputCls} /></L>
+          <L label="Client"><input value={r.clientName} onChange={(e) => set({ clientName: e.target.value })} placeholder="e.g. Bella Salon & Spa" className={inputCls} /></L>
           <L label="Date"><input type="date" value={r.date} onChange={(e) => set({ date: e.target.value })} className={inputCls} /></L>
           <L label="Industry">
             <select value={r.industryId} onChange={(e) => set({ industryId: e.target.value })} className={inputCls}>
@@ -222,11 +222,11 @@ function HistoryEditor({ record, onSaved, onExit }: { record: PresentationHistor
         {fields.map((f) =>
           f.area ? (
             <L key={f.key} label={f.label}>
-              <textarea value={String(r[f.key] ?? "")} onChange={(e) => set({ [f.key]: e.target.value } as Partial<PresentationHistoryRecord>)} rows={2} className={`${inputCls} py-2`} />
+              <textarea value={String(r[f.key] ?? "")} onChange={(e) => set({ [f.key]: e.target.value } as Partial<PresentationHistoryRecord>)} rows={2} placeholder={f.ph} className={`${inputCls} py-2`} />
             </L>
           ) : (
             <L key={f.key} label={f.label}>
-              <input value={String(r[f.key] ?? "")} onChange={(e) => set({ [f.key]: e.target.value } as Partial<PresentationHistoryRecord>)} className={inputCls} />
+              <input value={String(r[f.key] ?? "")} onChange={(e) => set({ [f.key]: e.target.value } as Partial<PresentationHistoryRecord>)} placeholder={f.ph} className={inputCls} />
             </L>
           ),
         )}

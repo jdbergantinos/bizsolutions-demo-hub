@@ -192,7 +192,7 @@ function MeetingEditor({ meeting, onSaved, onExit }: { meeting: MeetingRecord; o
 
       <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="grid grid-cols-2 gap-3">
-          <L label="Client"><input value={m.clientName} onChange={(e) => set({ clientName: e.target.value })} className={inputCls} /></L>
+          <L label="Client"><input value={m.clientName} onChange={(e) => set({ clientName: e.target.value })} placeholder="e.g. Bella Salon & Spa" className={inputCls} /></L>
           <L label="Meeting date"><input type="date" value={m.meetingDate} onChange={(e) => set({ meetingDate: e.target.value })} className={inputCls} /></L>
           <L label="Meeting type">
             <select value={m.meetingType} onChange={(e) => set({ meetingType: e.target.value })} className={inputCls}>
@@ -201,9 +201,9 @@ function MeetingEditor({ meeting, onSaved, onExit }: { meeting: MeetingRecord; o
               ))}
             </select>
           </L>
-          <L label="Presenter"><input value={m.presenter} onChange={(e) => set({ presenter: e.target.value })} className={inputCls} /></L>
+          <L label="Presenter"><input value={m.presenter} onChange={(e) => set({ presenter: e.target.value })} placeholder="e.g. John" className={inputCls} /></L>
         </div>
-        <L label="Attendees"><input value={m.attendees} onChange={(e) => set({ attendees: e.target.value })} className={inputCls} /></L>
+        <L label="Attendees"><input value={m.attendees} onChange={(e) => set({ attendees: e.target.value })} placeholder="e.g. Owner, branch manager, head cashier" className={inputCls} /></L>
         <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-3 text-sm text-slate-700">
           <input type="checkbox" checked={m.decisionMakersPresent} onChange={(e) => set({ decisionMakersPresent: e.target.checked })} className="h-4 w-4 accent-[var(--app-accent)]" />
           Decision-makers were present
@@ -219,7 +219,7 @@ function MeetingEditor({ meeting, onSaved, onExit }: { meeting: MeetingRecord; o
         <TA label="Decisions made" value={m.decisionsMade} onChange={(v) => set({ decisionsMade: v })} />
         <TA label="Items not approved" value={m.itemsNotApproved} onChange={(v) => set({ itemsNotApproved: v })} />
         <div className="grid grid-cols-2 gap-3">
-          <L label="Next action"><input value={m.nextAction} onChange={(e) => set({ nextAction: e.target.value })} className={inputCls} /></L>
+          <L label="Next action"><input value={m.nextAction} onChange={(e) => set({ nextAction: e.target.value })} placeholder="e.g. Send preliminary estimate by Friday" className={inputCls} /></L>
           <L label="Follow-up date"><input type="date" value={m.followUpDate} onChange={(e) => set({ followUpDate: e.target.value })} className={inputCls} /></L>
         </div>
         <L label="Opportunity status">
@@ -271,10 +271,29 @@ function MeetingEditor({ meeting, onSaved, onExit }: { meeting: MeetingRecord; o
   );
 }
 
+const TA_SAMPLES: Record<string, string> = {
+  "Topics discussed": "e.g. Booking flow, loyalty packages, pricing ranges",
+  "Confirmed problems": "e.g. No-shows; no central client records",
+  "Requested modules": "e.g. Booking, loyalty, branch dashboard",
+  "Requested changes": "e.g. Tagalog labels on the staff screens",
+  "Client concerns": "e.g. Staff might resist a new system",
+  "Budget discussion": "e.g. Comfortable around ₱150k to start",
+  "Questions requiring follow-up": "e.g. Can it print daily summaries?",
+  "Technical issues requiring verification": "e.g. Old POS export format unknown",
+  "Decisions made": "e.g. Proceed with a discovery workshop",
+  "Items not approved": "e.g. Custom mobile app — parked for now",
+};
+
 function TA({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <L label={label}>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={2} className={`${inputCls} py-2`} />
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        rows={2}
+        placeholder={TA_SAMPLES[label] ?? "e.g. Notes from the meeting"}
+        className={`${inputCls} py-2`}
+      />
     </L>
   );
 }
