@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+/* The accent color can be temporarily rebranded per client (presentation
+   mode / client profile) by overriding --app-accent at runtime. */
+@theme inline {
+  --color-accent: var(--app-accent);
+  --color-accent-soft: var(--app-accent-soft);
+}
+
+:root {
+  --app-accent: #0f4c81;
+  --app-accent-soft: #e3edf6;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply bg-slate-100 text-slate-900 antialiased;
+  overscroll-behavior-y: none;
+}
