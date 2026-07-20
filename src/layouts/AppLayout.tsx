@@ -10,6 +10,7 @@ import { ReloadPrompt } from "../components/common/ReloadPrompt";
 import { ErrorBoundary } from "../components/common/ErrorBoundary";
 import { WorkspaceBar } from "../discovery/components/WorkspaceBar";
 import { getActiveDiscoveryId, setActiveDiscoveryId } from "../discovery/store/discoveryStorage";
+import { activeProfileIdForDiscovery } from "../discovery/engine/workspace";
 
 // Client-workspace tools that operate on the active client's records — the
 // "Working on: [Client]" bar appears above these so the presenter always
@@ -46,11 +47,19 @@ const MORE_NAV = NAV.filter((n) => !mobilePaths.includes(n.to));
 
 export function AppLayout() {
   const online = useOnline();
-  const { activeProfile, presentation } = useApp();
+  const { activeProfile, presentation, profiles, setActiveProfile } = useApp();
   const [moreOpen, setMoreOpen] = useState(false);
   const location = useLocation();
   const [activeDiscoveryId, setActiveDiscoveryIdState] = useState<string | null>(getActiveDiscoveryId());
   const showWorkspaceBar = WORKSPACE_ROUTES.has(location.pathname);
+
+  // Switching the active client anywhere keeps all three "active" notions in
+  // sync: the active discovery, and the client profile it's saved as.
+  const switchActiveClient = (id: string | null) => {
+    setActiveDiscoveryId(id);
+    setActiveDiscoveryIdState(id);
+    setActiveProfile(activeProfileIdForDiscovery(id, profiles));
+  };
 
   // Temporary client accent (profile or presentation) applied app-wide.
   const accent = presentation.active
@@ -106,13 +115,7 @@ export function AppLayout() {
         </header>
 
         {showWorkspaceBar && (
-          <WorkspaceBar
-            activeId={activeDiscoveryId}
-            onChange={(id) => {
-              setActiveDiscoveryId(id);
-              setActiveDiscoveryIdState(id);
-            }}
-          />
+          <WorkspaceBar activeId={activeDiscoveryId} onChange={switchActiveClient} />
         )}
 
         <main className="mx-auto w-full max-w-5xl px-4 py-4 md:px-8 md:py-8">

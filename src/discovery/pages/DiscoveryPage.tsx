@@ -11,40 +11,14 @@ import { useToast } from "../../store/ToastContext";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { EmptyState } from "../../components/common/EmptyState";
 import { Pill } from "../../components/common/Badge";
-import type { ClientProfile } from "../../types";
 import type { DiscoveryRecord, DiscoveryStatus } from "../types";
 import { BUDGET_RANGES, IMPLEMENTATION_PERIODS, OUTCOME_OPTIONS, TOOL_OPTIONS } from "../config/discoveryOptions";
-import { getProblem } from "../config/problemCatalog";
 import { buildDiscoverySummary, discoveryCompleteness } from "../engine/recommend";
 import {
   deleteDiscovery, exportDiscoveryData, getActiveDiscoveryId, importDiscoveryData,
   loadDiscoveries, newDiscovery, setActiveDiscoveryId, upsertDiscovery,
 } from "../store/discoveryStorage";
-import { uid } from "../../utils/storage";
-
-/** Builds a permanent Client Profile from a discovery's collected details. */
-function profileFromDiscovery(d: DiscoveryRecord): ClientProfile {
-  const problemTitles = d.problems
-    .map((p) => getProblem(p.problemId)?.title ?? p.customTitle)
-    .filter(Boolean)
-    .join("; ");
-  const tools = [d.operations.tools.join(", "), d.operations.toolsOther].filter(Boolean).join(" — ");
-  const outcomes = [d.desiredOutcomes.join(", "), d.outcomesOther].filter(Boolean).join(" — ");
-  return {
-    id: uid(),
-    businessName: d.business.businessName,
-    contactPerson: d.business.contactPerson,
-    industryId: d.business.industryId,
-    businessType: d.business.businessExample,
-    branches: String(d.business.branches),
-    employees: d.business.employees,
-    currentSystems: tools,
-    primaryProblems: problemTitles || d.business.notes,
-    desiredOutcomes: outcomes,
-    notes: d.business.notes,
-    createdAt: new Date().toISOString(),
-  };
-}
+import { activeProfileIdForDiscovery, profileFromDiscovery } from "../engine/workspace";
 
 const STATUS_META: Record<DiscoveryStatus, { label: string; tone: "gray" | "blue" | "amber" | "green" | "violet" }> = {
   draft: { label: "Draft", tone: "gray" },
@@ -59,7 +33,7 @@ const inputCls =
 
 export function DiscoveryPage() {
   const [params] = useSearchParams();
-  const { profiles } = useApp();
+  const { profiles, setActiveProfile } = useApp();
   const [records, setRecords] = useState<DiscoveryRecord[]>(loadDiscoveries);
   const [editing, setEditing] = useState<DiscoveryRecord | null>(() => {
     const clientId = params.get("client");
@@ -91,6 +65,7 @@ export function DiscoveryPage() {
         onSaved={(r) => {
           setRecords(upsertDiscovery(r));
           setActiveDiscoveryId(r.id);
+          setActiveProfile(activeProfileIdForDiscovery(r.id, profiles));
         }}
         onExit={() => {
           setRecords(loadDiscoveries());
@@ -116,7 +91,7 @@ function DiscoveryHub({
 }) {
   const toast = useToast();
   const navigate = useNavigate();
-  const { profiles, saveProfile } = useApp();
+  const { profiles, saveProfile, setActiveProfile } = useApp();
   const activeId = getActiveDiscoveryId();
   const [confirmDelete, setConfirmDelete] = useState<DiscoveryRecord | null>(null);
   const [importText, setImportText] = useState("");
@@ -231,6 +206,7 @@ function DiscoveryHub({
                       <button
                         onClick={() => {
                           setActiveDiscoveryId(r.id);
+                          setActiveProfile(activeProfileIdForDiscovery(r.id, profiles));
                           onEdit(r);
                         }}
                         className="min-h-10 rounded-lg bg-accent px-3 text-xs font-semibold text-white hover:opacity-90"
@@ -241,6 +217,7 @@ function DiscoveryHub({
                         <button
                           onClick={() => {
                             setActiveDiscoveryId(r.id);
+                            setActiveProfile(activeProfileIdForDiscovery(r.id, profiles));
                             setRecords([...records]);
                             toast(`"${r.business.businessName || "Discovery"}" is now active.`);
                           }}
