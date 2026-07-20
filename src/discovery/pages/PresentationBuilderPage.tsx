@@ -71,6 +71,29 @@ export function PresentationBuilderPage() {
   const [confirmReset, setConfirmReset] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Deep-link from an empty presentation section: scroll to and briefly flash
+  // the content-source field the presenter came to fill in. Keyed on the focus
+  // string (not the params object, which changes identity on every autosave
+  // re-render and would keep cancelling the timers).
+  const focusParam = params.get("focus");
+  const [flash, setFlash] = useState<string | null>(null);
+  useEffect(() => {
+    if (!focusParam) return;
+    const scroll = setTimeout(() => {
+      const el = document.getElementById(`builder-${focusParam}`);
+      if (!el) return;
+      // Instant (not smooth): it completes synchronously here, before the flash
+      // re-render, so the two don't race (a smooth animation would get cancelled).
+      el.scrollIntoView({ behavior: "auto", block: "center" });
+      setFlash(focusParam);
+    }, 200);
+    const clear = setTimeout(() => setFlash(null), 3200);
+    return () => {
+      clearTimeout(scroll);
+      clearTimeout(clear);
+    };
+  }, [focusParam]);
+
   // Persist edits (debounced).
   useEffect(() => {
     if (!p) return;
@@ -238,7 +261,7 @@ export function PresentationBuilderPage() {
       {/* Content links */}
       <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">Content sources</h2>
-        <L label="Discovery record (problems & challenges)">
+        <L label="Discovery record (problems & challenges)" anchor="builder-discovery" highlight={flash === "discovery"}>
           <select value={p.discoveryId ?? ""} onChange={(e) => set({ discoveryId: e.target.value || undefined })} className={inputCls}>
             <option value="">— None —</option>
             {loadDiscoveries().map((d) => (
@@ -246,7 +269,7 @@ export function PresentationBuilderPage() {
             ))}
           </select>
         </L>
-        <L label="Workflow comparison">
+        <L label="Workflow comparison" anchor="builder-workflow" highlight={flash === "workflow"}>
           <select value={p.workflowId ?? ""} onChange={(e) => set({ workflowId: e.target.value || undefined })} className={inputCls}>
             <option value="">— None —</option>
             {workflows.map((w) => (
@@ -254,7 +277,7 @@ export function PresentationBuilderPage() {
             ))}
           </select>
         </L>
-        <L label="Pricing estimate (client view only)">
+        <L label="Pricing estimate (client view only)" anchor="builder-estimate" highlight={flash === "estimate"}>
           <select value={p.estimateId ?? ""} onChange={(e) => set({ estimateId: e.target.value || undefined })} className={inputCls}>
             <option value="">— None —</option>
             {estimates.map((e) => (
@@ -263,7 +286,7 @@ export function PresentationBuilderPage() {
           </select>
         </L>
         <div className="grid gap-3 sm:grid-cols-2">
-          <L label="ROI / business-value estimate">
+          <L label="ROI / business-value estimate" anchor="builder-roi" highlight={flash === "roi"}>
             <select value={p.roiId ?? ""} onChange={(e) => set({ roiId: e.target.value || undefined })} className={inputCls}>
               <option value="">— None —</option>
               {roiRepo.loadAll().map((r) => (
@@ -271,7 +294,7 @@ export function PresentationBuilderPage() {
               ))}
             </select>
           </L>
-          <L label="Preliminary scope">
+          <L label="Preliminary scope" anchor="builder-scope" highlight={flash === "scope"}>
             <select value={p.scopeId ?? ""} onChange={(e) => set({ scopeId: e.target.value || undefined })} className={inputCls}>
               <option value="">— None —</option>
               {scopeRepo.loadAll().map((s) => (
@@ -297,7 +320,7 @@ export function PresentationBuilderPage() {
           </L>
         </div>
         {industry && (
-          <L label="Demos to feature">
+          <L label="Demos to feature" anchor="builder-demos" highlight={flash === "demos"}>
             <div className="max-h-40 space-y-1 overflow-y-auto rounded-xl border border-slate-200 p-2">
               {industry.services.map((s) => (
                 <label key={s.id} className="flex min-h-10 cursor-pointer items-center gap-2 rounded-lg px-2 text-sm hover:bg-slate-50">
@@ -416,9 +439,24 @@ function Header() {
   );
 }
 
-function L({ label, children }: { label: string; children: React.ReactNode }) {
+function L({
+  label,
+  children,
+  anchor,
+  highlight,
+}: {
+  label: string;
+  children: React.ReactNode;
+  anchor?: string;
+  highlight?: boolean;
+}) {
   return (
-    <label className="block">
+    <label
+      id={anchor}
+      className={`block scroll-mt-20 rounded-xl transition ${
+        highlight ? "bg-accent-soft/50 p-2 ring-2 ring-accent ring-offset-2" : ""
+      }`}
+    >
       <span className="mb-1 block text-xs font-medium text-slate-600">{label}</span>
       {children}
     </label>
