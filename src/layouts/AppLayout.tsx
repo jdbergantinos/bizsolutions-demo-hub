@@ -8,6 +8,24 @@ import { useApp } from "../store/AppStore";
 import { useOnline } from "../hooks/useOnline";
 import { ReloadPrompt } from "../components/common/ReloadPrompt";
 import { ErrorBoundary } from "../components/common/ErrorBoundary";
+import { WorkspaceBar } from "../discovery/components/WorkspaceBar";
+import { getActiveDiscoveryId, setActiveDiscoveryId } from "../discovery/store/discoveryStorage";
+
+// Client-workspace tools that operate on the active client's records — the
+// "Working on: [Client]" bar appears above these so the presenter always
+// knows (and can switch) which client they're on.
+const WORKSPACE_ROUTES = new Set([
+  "/problem-scanner",
+  "/solution-recommendations",
+  "/workflow-comparison",
+  "/roi",
+  "/scope",
+  "/roadmap",
+  "/meetings",
+  "/packages",
+  "/summary",
+  "/presentation-builder",
+]);
 
 const NAV = [
   { to: "/", label: "Home", icon: Home },
@@ -31,6 +49,8 @@ export function AppLayout() {
   const { activeProfile, presentation } = useApp();
   const [moreOpen, setMoreOpen] = useState(false);
   const location = useLocation();
+  const [activeDiscoveryId, setActiveDiscoveryIdState] = useState<string | null>(getActiveDiscoveryId());
+  const showWorkspaceBar = WORKSPACE_ROUTES.has(location.pathname);
 
   // Temporary client accent (profile or presentation) applied app-wide.
   const accent = presentation.active
@@ -85,8 +105,19 @@ export function AppLayout() {
           <OfflineBadge online={online} compact />
         </header>
 
+        {showWorkspaceBar && (
+          <WorkspaceBar
+            activeId={activeDiscoveryId}
+            onChange={(id) => {
+              setActiveDiscoveryId(id);
+              setActiveDiscoveryIdState(id);
+            }}
+          />
+        )}
+
         <main className="mx-auto w-full max-w-5xl px-4 py-4 md:px-8 md:py-8">
-          <ErrorBoundary key={location.pathname + location.search}>
+          {/* Keyed on the active client so switching reloads the tool's data. */}
+          <ErrorBoundary key={location.pathname + location.search + (activeDiscoveryId ?? "")}>
             <Outlet />
           </ErrorBoundary>
         </main>

@@ -5,12 +5,16 @@ import { useToast } from "../../store/ToastContext";
 import { Pill } from "../../components/common/Badge";
 import { loadEstimates } from "../../pricing/store/pricingStorage";
 import {
-  getActiveDiscovery, loadPresentations, loadWorkflows, upsertPresentation,
+  getActiveDiscovery, loadPresentations, upsertPresentation,
 } from "../../discovery/store/discoveryStorage";
+import {
+  estimateForDiscovery, latestMeetingForDiscovery, roadmapForDiscovery,
+  roiForDiscovery, scopeForDiscovery, workflowForDiscovery,
+} from "../../discovery/engine/workspace";
 import { calculateRoi } from "../engine/calculateRoi";
 import { recommendNextStep } from "../engine/nextStep";
 import { buildDiscussionSummary } from "../engine/summary";
-import { ackRepo, meetingRepo, roadmapRepo, roiRepo, scopeRepo, summaryRepo } from "../store/valueStorage";
+import { ackRepo, summaryRepo } from "../store/valueStorage";
 import type { AcknowledgmentChoice, ClientAcknowledgment } from "../types";
 import { uid } from "../../utils/storage";
 
@@ -34,20 +38,20 @@ export function SummaryPage() {
   const [clientView, setClientView] = useState(true);
 
   const sources = useMemo(() => {
+    // All records resolve to the ACTIVE client only — never "the first record",
+    // so the summary can no longer mix one client's problems with another's pricing.
     const discovery = getActiveDiscovery();
-    const estimate = loadEstimates().filter((e) => !e.archived)[0] ?? null;
-    const roi = roiRepo.loadAll()[0] ?? null;
-    const meeting = meetingRepo.loadAll()[0] ?? null;
-    const workflow = discovery?.workflowId
-      ? loadWorkflows().find((w) => w.id === discovery.workflowId) ?? loadWorkflows()[0] ?? null
-      : loadWorkflows()[0] ?? null;
+    const estimate = estimateForDiscovery(discovery);
+    const roi = roiForDiscovery(discovery);
+    const meeting = latestMeetingForDiscovery(discovery);
+    const workflow = workflowForDiscovery(discovery);
     return {
       discovery,
       workflow,
       estimate,
       roiResult: roi ? calculateRoi(roi.inputs, roi.pricingEstimateId ? loadEstimates().find((e) => e.id === roi.pricingEstimateId) : estimate) : null,
-      scope: scopeRepo.loadAll()[0] ?? null,
-      roadmap: roadmapRepo.loadAll()[0] ?? null,
+      scope: scopeForDiscovery(discovery),
+      roadmap: roadmapForDiscovery(discovery),
       meeting,
       nextStep: recommendNextStep(discovery, meeting, estimate),
     };
@@ -104,7 +108,7 @@ export function SummaryPage() {
     }
     upsertPresentation({
       ...p,
-      roiId: roiRepo.loadAll()[0]?.id ?? p.roiId,
+      roiId: roiForDiscovery(sources.discovery)?.id ?? p.roiId,
       scopeId: sources.scope?.id ?? p.scopeId,
       roadmapId: sources.roadmap?.id ?? p.roadmapId,
       meetingId: sources.meeting?.id ?? p.meetingId,

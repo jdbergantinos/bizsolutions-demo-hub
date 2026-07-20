@@ -7,6 +7,7 @@ import { EmptyState } from "../../components/common/EmptyState";
 import { Pill } from "../../components/common/Badge";
 import { loadEstimates } from "../../pricing/store/pricingStorage";
 import { getActiveDiscovery, loadDiscoveries } from "../../discovery/store/discoveryStorage";
+import { estimateForDiscovery } from "../../discovery/engine/workspace";
 import type { MeetingRecord, NextStepId, OpportunityStatus } from "../types";
 import { NEXT_STEPS, recommendNextStep } from "../engine/nextStep";
 import { meetingRepo, newMeeting } from "../store/valueStorage";
@@ -151,7 +152,8 @@ function MeetingEditor({ meeting, onSaved, onExit }: { meeting: MeetingRecord; o
   }, [m]);
 
   const discovery = loadDiscoveries().find((d) => d.id === m.discoveryId) ?? getActiveDiscovery();
-  const estimate = loadEstimates().find((e) => e.id === m.pricingEstimateId) ?? loadEstimates().filter((e) => !e.archived)[0] ?? null;
+  // The meeting's own estimate, else this client's estimate — not "any estimate".
+  const estimate = loadEstimates().find((e) => e.id === m.pricingEstimateId) ?? estimateForDiscovery(discovery ?? null);
   const rec = recommendNextStep(discovery ?? null, m, estimate);
   const effectiveStep = override || rec.stepId;
 

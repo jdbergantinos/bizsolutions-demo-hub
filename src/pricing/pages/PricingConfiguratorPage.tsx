@@ -95,6 +95,7 @@ export function PricingConfiguratorPage() {
       const d = getActiveDiscovery();
       if (d) {
         base.clientProfileId = d.clientProfileId;
+        base.discoveryId = d.id;
         base.businessName = d.business.businessName;
         base.contactPerson = d.business.contactPerson;
         base.industryId = d.business.industryId;
