@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { Archive, Calculator, Database, Download, HardDrive, Info, RotateCcw, ShieldAlert, Upload } from "lucide-react";
 import { loadPricingSettings } from "../pricing/store/pricingStorage";
 import { exportBackup, importBackup, validateBackup, type AppBackup, type BackupPreview } from "../toolkit/engine/backup";
+import {
+  clearDemoPracticeData, clearProspectData, CURRENT_DATA_VERSION, daysSinceLastExport,
+  EXPORT_REMINDER_DAYS, listSnapshots, recordManualExport, restoreSnapshot,
+} from "../toolkit/engine/dataCare";
 import { INDUSTRIES } from "../data/catalog";
 import { useApp } from "../store/AppStore";
 import { useToast } from "../store/ToastContext";
@@ -16,6 +20,8 @@ type PendingReset =
   | { kind: "profiles" }
   | { kind: "solutions" }
   | { kind: "favorites" }
+  | { kind: "practice" }
+  | { kind: "prospects" }
   | { kind: "everything" };
 
 export function SettingsPage() {
@@ -60,6 +66,17 @@ export function SettingsPage() {
         app.resetFavorites();
         toast("Favorites reset.");
         break;
+      case "practice": {
+        const n = clearDemoPracticeData();
+        toast(`Demo & practice data cleared (${n} storage areas). Client profiles and prospect records are untouched.`);
+        break;
+      }
+      case "prospects": {
+        const n = clearProspectData();
+        toast(`Real prospect data cleared (${n} storage areas). A safety snapshot was taken first.`);
+        setTimeout(() => window.location.reload(), 1200);
+        break;
+      }
       case "everything":
         app.resetEverything();
         toast("Demo data restored. The application has been fully reset.");
@@ -69,7 +86,11 @@ export function SettingsPage() {
   };
 
   const confirmText: Record<PendingReset["kind"], string> = {
-    demos: "All demo records in every module will be restored to the original sample data.",
+    practice:
+      "Demo-module records, simulated-notification history, and approval-showcase states will be cleared. Client profiles, discoveries, estimates, and all other prospect records are kept. A safety snapshot is taken first.",
+    prospects:
+      "All REAL prospect data will be deleted: client profiles, discoveries, workflows, presentations, estimates, ROI, scopes, roadmaps, meetings, acknowledgments, assessments, and history. Demo data, settings, and pricing rules are kept. A safety snapshot is taken first.",
+    demos: "All demo records in every module will be restored to the original sample data. Client profiles and prospect records are kept.",
     industry: "All demo records for the selected industry will be restored to sample data.",
     profiles: "All client profiles (including temporary logos) will be deleted from this device.",
     solutions: "The selected client solutions list will be emptied.",
@@ -96,6 +117,7 @@ export function SettingsPage() {
           <Row label="Local storage used">{storageUsed} KB</Row>
           <Row label="Data location">This device only (localStorage)</Row>
           <Row label="Version">1.0.0</Row>
+          <Row label="Data-format version">v{CURRENT_DATA_VERSION} (auto-migrated on app updates)</Row>
         </dl>
       </section>
 
@@ -131,6 +153,22 @@ export function SettingsPage() {
           <ResetBtn label="Reset client profiles" onClick={() => setPending({ kind: "profiles" })} />
           <ResetBtn label="Reset selected solutions" onClick={() => setPending({ kind: "solutions" })} />
           <ResetBtn label="Reset favorites" onClick={() => setPending({ kind: "favorites" })} />
+          <div className="my-2 border-t border-slate-100 pt-2">
+            <p className="mb-2 text-xs text-slate-500">
+              <strong>Sample vs. real data:</strong> demo/practice data is the play area
+              (demo records, simulated notifications, approval walkthroughs); prospect data
+              is your actual clients (profiles, discoveries, estimates, meetings, history).
+            </p>
+            <div className="space-y-2">
+              <ResetBtn label="Clear demo & practice data (keeps prospects)" onClick={() => setPending({ kind: "practice" })} />
+              <button
+                onClick={() => setPending({ kind: "prospects" })}
+                className="min-h-11 w-full rounded-xl border border-red-300 text-sm font-medium text-red-700 hover:bg-red-50"
+              >
+                Clear real prospect data (keeps demos & settings)
+              </button>
+            </div>
+          </div>
           <button
             onClick={() => setPending({ kind: "everything" })}
             className="min-h-11 w-full rounded-xl bg-red-600 text-sm font-semibold text-white hover:bg-red-700"
@@ -173,13 +211,28 @@ export function SettingsPage() {
           estimates, ROI, scopes, roadmaps, meetings, history, custom scenarios, pricing
           configuration, and settings — as one versioned JSON file.
         </p>
+        {(() => {
+          const days = daysSinceLastExport();
+          const due = days === null || days >= EXPORT_REMINDER_DAYS;
+          return due ? (
+            <p className="mb-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              {days === null
+                ? "You have never exported a backup file. Snapshots on this device do not protect against losing the phone — export one now and keep it somewhere safe."
+                : `Your last exported backup is ${days} day(s) old. Consider exporting a fresh one.`}
+            </p>
+          ) : (
+            <p className="mb-2 text-[11px] text-slate-400">Last exported backup: {days === 0 ? "today" : `${days} day(s) ago`}.</p>
+          );
+        })()}
         <button
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(exportBackup());
+              recordManualExport();
               toast("Full backup JSON copied to clipboard — save it somewhere safe.");
             } catch {
               setBackupText(exportBackup());
+              recordManualExport();
               toast("Clipboard blocked — backup placed in the box below for manual copying.", "info");
             }
           }}
@@ -187,6 +240,42 @@ export function SettingsPage() {
         >
           <Download className="h-4 w-4" /> Export full backup
         </button>
+
+        {/* Automatic snapshots */}
+        <div className="mt-3 rounded-xl border border-slate-200 p-3">
+          <p className="text-xs font-semibold text-slate-700">Automatic snapshots (kept on this device)</p>
+          <p className="mt-0.5 text-[11px] text-slate-400">
+            Taken once a day when you open the app; the last 3 are kept. They survive in-app
+            resets and protect against accidental deletions — not against losing the phone.
+          </p>
+          {listSnapshots().length === 0 ? (
+            <p className="mt-2 text-xs text-slate-400">No snapshots yet — one is taken the next time the app opens with data present.</p>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {listSnapshots().map((s) => (
+                <li key={s.takenAt} className="flex items-center justify-between gap-2 text-xs text-slate-600">
+                  <span>
+                    {new Date(s.takenAt).toLocaleString()} · {Object.keys(s.backup.keys).length} storage keys
+                  </span>
+                  <button
+                    onClick={() => {
+                      const n = restoreSnapshot(s.takenAt);
+                      if (n >= 0) {
+                        toast(`Snapshot restored (${n} storage keys). Reloading…`);
+                        setTimeout(() => window.location.reload(), 1200);
+                      } else {
+                        toast("Snapshot could not be restored.", "info");
+                      }
+                    }}
+                    className="min-h-9 shrink-0 rounded-lg border border-slate-300 px-3 font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    Restore
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <textarea
           value={backupText}
           onChange={(e) => setBackupText(e.target.value)}

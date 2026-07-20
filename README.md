@@ -236,6 +236,24 @@ foreign keys → readable errors, never a crash), previews key counts, then offe
 **Merge** (overwrite only keys present in the backup) or **Replace** (destructive, wipes
 all app data first, double-confirmed). Sample backups must never contain real client data.
 
+**Automatic snapshots**: once a day, on app open, a full snapshot is stored on the device
+(newest 3 kept) under the `bizsolutions-meta.` prefix — deliberately *outside* the app-data
+namespace, so snapshots survive every in-app reset and are never nested inside backups.
+Snapshots protect against accidental deletion and bad imports, **not** against losing the
+phone; Settings shows a reminder when the last manually exported backup is over 7 days old
+(or was never made). Destructive clears take a snapshot first.
+
+**Sample vs. real prospect data**: Settings offers two separated clears —
+*Clear demo & practice data* (demo-module records, simulated-notification history,
+approval-showcase states; prospect records untouched) and *Clear real prospect data*
+(profiles, discoveries, workflows, presentations, estimates, ROI, scopes, roadmaps,
+meetings, acknowledgments, assessments, history; demo data, settings, favorites, and
+pricing rules kept). "Reset all demos" continues to keep client profiles.
+
+**Storage versioning**: `bizsolutions-meta.dataversion` stamps the data-format version
+(currently v1); `runMigrations()` in `src/toolkit/engine/dataCare.ts` runs pending
+upgrades once at startup, so future app updates can migrate old stored data safely.
+
 ### Phase C storage keys
 
 `bizsolutions.toolkit.assessments.v1`, `.notifications.v1`, `.approvals.v1`,
