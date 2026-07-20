@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Building2, ChevronRight, Clock, Heart, ListChecks, MonitorPlay, RotateCcw, Star } from "lucide-react";
+import { Building2, ChevronRight, ClipboardList, Clock, Heart, ListChecks, MonitorPlay, RotateCcw, Star } from "lucide-react";
 import { getIndustry, getService, INDUSTRIES } from "../data/catalog";
 import { useApp } from "../store/AppStore";
 import { useToast } from "../store/ToastContext";
@@ -62,18 +62,24 @@ export function HomePage() {
             ))}
           </ul>
         )}
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        <Link
+          to="/presentation-builder"
+          className="mt-4 flex min-h-13 items-center justify-center gap-2 rounded-xl bg-white text-base font-bold text-accent hover:bg-white/90"
+        >
+          <MonitorPlay className="h-5 w-5" /> Start Client Presentation
+        </Link>
+        <div className="mt-2 grid grid-cols-2 gap-2">
           <Link
             to="/industries"
-            className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl bg-white text-sm font-semibold text-accent hover:bg-white/90"
+            className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-white/40 text-sm font-semibold text-white hover:bg-white/10"
           >
             <Building2 className="h-4 w-4" /> Browse industries
           </Link>
           <Link
-            to="/present"
+            to="/discovery"
             className="flex min-h-12 items-center justify-center gap-1.5 rounded-xl border border-white/40 text-sm font-semibold text-white hover:bg-white/10"
           >
-            <MonitorPlay className="h-4 w-4" /> Start presentation
+            <ClipboardList className="h-4 w-4" /> Client discovery
           </Link>
         </div>
       </section>

@@ -24,6 +24,8 @@ import {
 import {
   ComplexityDots, EstimateDisclaimer, LineTable, ManualReviewBanner, Money, SectionCard,
 } from "../components/pricingUi";
+import { getActiveDiscovery } from "../../discovery/store/discoveryStorage";
+import { sizeRuleFor } from "../../discovery/engine/recommend";
 
 const STEPS = [
   "Client & Industry",
@@ -84,7 +86,40 @@ export function PricingConfiguratorPage() {
     const serviceId = params.get("service") ?? "";
     const clientId = params.get("client") ?? "";
     const fromSolutions = params.get("fromSolutions") === "1";
+    const fromDiscovery = params.get("discovery") === "1";
     const quick = params.get("quick") === "1";
+
+    // Load business details and accepted recommendations from the active
+    // discovery (Phase A → pricing hand-off).
+    if (fromDiscovery) {
+      const d = getActiveDiscovery();
+      if (d) {
+        base.clientProfileId = d.clientProfileId;
+        base.businessName = d.business.businessName;
+        base.contactPerson = d.business.contactPerson;
+        base.industryId = d.business.industryId;
+        base.businessExample = d.business.businessExample;
+        base.location = d.business.location;
+        base.branches = d.business.branches;
+        base.employees = d.business.employees;
+        base.users = d.business.users;
+        base.monthlyTransactions = d.business.monthlyTransactions;
+        base.currentSystems = d.operations.tools.join(", ");
+        base.primaryProblems = d.problems.length
+          ? `${d.problems.length} problems identified in discovery`
+          : d.business.notes;
+        base.businessSize = sizeRuleFor(d).id;
+        const rec = d.recommendationSet;
+        if (rec) {
+          base.selectedServiceOfferIds = rec.recommendations
+            .filter((r) => r.decision === "accepted")
+            .map((r) => r.serviceOfferId);
+          base.deliveryModel = rec.suggestedDeliveryModel;
+          base.configurationLevel = rec.suggestedConfigurationLevel;
+        }
+        return base;
+      }
+    }
 
     if (!industryId && !serviceId && !clientId && !fromSolutions) {
       const draft = loadDraft();

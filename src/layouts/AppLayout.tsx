@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
-  Building2, Calculator, Heart, Home, LayoutGrid, ListChecks, MonitorPlay,
-  MoreHorizontal, Settings, UserRound, Wifi, WifiOff, X,
+  Building2, Calculator, ClipboardList, Heart, Home, LayoutGrid, ListChecks,
+  MonitorPlay, MoreHorizontal, Settings, UserRound, Wifi, WifiOff, X,
 } from "lucide-react";
 import { useApp } from "../store/AppStore";
 import { useOnline } from "../hooks/useOnline";
@@ -12,6 +12,7 @@ import { ErrorBoundary } from "../components/common/ErrorBoundary";
 const NAV = [
   { to: "/", label: "Home", icon: Home },
   { to: "/industries", label: "Industries", icon: Building2 },
+  { to: "/discovery", label: "Discovery", icon: ClipboardList },
   { to: "/demos", label: "Demo Modules", icon: LayoutGrid },
   { to: "/pricing", label: "Pricing Configurator", icon: Calculator },
   { to: "/solutions", label: "Selected Solutions", icon: ListChecks },
@@ -21,7 +22,7 @@ const NAV = [
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 
-const mobilePaths = ["/", "/industries", "/pricing", "/present"];
+const mobilePaths = ["/", "/industries", "/discovery", "/pricing"];
 const MOBILE_NAV = mobilePaths.map((p) => NAV.find((n) => n.to === p)!);
 const MORE_NAV = NAV.filter((n) => !mobilePaths.includes(n.to));
 

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, Calculator, Package, Play, Star } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Calculator, ClipboardList, GitCompareArrows, Package, Play, ScanSearch, Star } from "lucide-react";
 import { getIndustry } from "../data/catalog";
 import { Icon } from "../components/common/Icon";
 import { ServiceCard } from "../components/catalog/ServiceCard";
@@ -104,6 +104,24 @@ export function IndustryDetailPage() {
             className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
             <Package className="h-4 w-4" /> View recommended package
+          </button>
+          <button
+            onClick={() => navigate(`/discovery?industry=${industry.id}`)}
+            className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <ClipboardList className="h-4 w-4" /> Start industry discovery
+          </button>
+          <button
+            onClick={() => navigate(`/problem-scanner?industry=${industry.id}`)}
+            className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <ScanSearch className="h-4 w-4" /> View common problems
+          </button>
+          <button
+            onClick={() => navigate(`/workflow-comparison?industry=${industry.id}&template=1`)}
+            className="col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <GitCompareArrows className="h-4 w-4" /> Generate recommended workflow
           </button>
         </div>
       </header>

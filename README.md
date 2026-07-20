@@ -98,6 +98,57 @@ There is **no separate app per service offer**. Instead:
    search/filter/sort, status changes, assignment, notes, line items, activity history,
    toasts, confirmation dialogs, and reset.
 
+## Client Discovery & Guided Presentation (Phase A)
+
+The Discovery workflow turns a client meeting into a structured, presentable solution:
+
+1. **Discovery interview** (`/discovery`) — multi-step questionnaire (business info,
+   current operations, desired outcomes) with autosave, completeness %, statuses
+   (draft → in progress → ready → follow-up → completed), copy-summary, and reset.
+2. **Problem Scanner** (`/problem-scanner`) — 38 catalog problems in 6 categories plus
+   custom problems, each with severity, priority, notes, and verified/assumed marking.
+3. **Recommendations** (`/solution-recommendations`) — a transparent rule-based engine
+   scores every service offer of the client's industry from problem severity/priority,
+   desired outcomes, business size, and operations flags. Tiers: recommended, optional,
+   future-phase, needs technical review, not-initially (risk-driven). Every card shows
+   *why* it was suggested; outputs feed Selected Solutions and the Pricing Configurator
+   (`/pricing/new?discovery=1` loads the active discovery).
+4. **Workflow Comparison** (`/workflow-comparison`) — before/after workflow builder with
+   step editing, reorder, duplicate, convert-to-proposed, bottleneck/approval flags, and
+   time figures clearly labeled as estimates from user inputs.
+5. **Presentation Builder** (`/presentation-builder`) — client-branded setup (name, logo,
+   accent color, meeting details, section toggle/reorder, content sources) feeding the
+   full-screen **Guided Presentation** (`/presentation`) with swipe/keyboard navigation,
+   client vs presenter view, presenter notes, role-based demo perspectives, and
+   position resume. Demos open in a new tab so the presentation keeps its place.
+
+### How to extend Phase A
+
+- **Add a new problem**: append to `src/discovery/config/problemCatalog.ts` — set
+  `relatedDemoModuleIds` and the resolver maps it to every industry's matching offers.
+- **Map a problem to specific offers**: add `relatedServiceOfferIds` on the problem for
+  explicit offer IDs beyond the module mapping.
+- **Add an industry-specific role configuration**: add an entry to `INDUSTRY_ROLES` in
+  `src/discovery/config/roleConfigs.ts` (role id from `DEFAULT_ROLES` + display name).
+- Recommendation weights live in `src/discovery/engine/recommend.ts`
+  (severity/priority weight tables) — unit-tested in `src/discovery/engine/__tests__`.
+
+### Phase A storage keys
+
+| Key | Contents |
+| --- | --- |
+| `bizsolutions.discovery.records.v1` | discovery records (answers, problems, recommendation sets) |
+| `bizsolutions.discovery.active.v1` | id of the active discovery |
+| `bizsolutions.discovery.workflows.v1` | workflow comparisons |
+| `bizsolutions.discovery.presentations.v1` | guided presentations |
+
+All are versioned; the Discovery hub offers validated JSON export/import.
+
+**Phase A limitations**: recommendations are rule-based suggestions, never guarantees;
+role permissions are conceptual demo behavior, not access control; implementation-process
+and next-steps slides are labeled placeholders; time savings are presenter-entered
+estimates.
+
 ## Solution & Pricing Configurator
 
 The Pricing Configurator (`/pricing` navigation item) builds **preliminary, range-based

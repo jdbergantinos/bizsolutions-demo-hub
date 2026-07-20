@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calculator, CheckCircle2, Copy, Pencil, Plus, Trash2, UserRound } from "lucide-react";
+import { Calculator, CheckCircle2, ClipboardList, Copy, MonitorPlay, Pencil, Plus, Trash2, UserRound } from "lucide-react";
 import type { ClientProfile } from "../types";
 import { INDUSTRIES, getIndustry } from "../data/catalog";
 import { useApp } from "../store/AppStore";
@@ -122,6 +122,20 @@ export function ProfilesPage() {
                   <IconBtn label="Delete" danger onClick={() => setConfirmDelete(p)}>
                     <Trash2 className="h-4 w-4" />
                   </IconBtn>
+                </div>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => navigate(`/discovery?client=${p.id}`)}
+                    className="inline-flex min-h-10 items-center justify-center gap-1 rounded-lg border border-slate-300 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    <ClipboardList className="h-3.5 w-3.5" /> Start discovery
+                  </button>
+                  <button
+                    onClick={() => navigate("/presentation-builder")}
+                    className="inline-flex min-h-10 items-center justify-center gap-1 rounded-lg border border-slate-300 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                  >
+                    <MonitorPlay className="h-3.5 w-3.5" /> Build presentation
+                  </button>
                 </div>
               </li>
             );

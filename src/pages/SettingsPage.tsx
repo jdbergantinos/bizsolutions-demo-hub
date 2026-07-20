@@ -176,6 +176,10 @@ export function SettingsPage() {
           <li>bizsolutions.pricing.settings.v1 — pricing settings</li>
           <li>bizsolutions.pricing.rules.v1 — customized pricing rules</li>
           <li>bizsolutions.pricing.draft.v1 — in-progress estimate draft</li>
+          <li>bizsolutions.discovery.records.v1 — client discovery records</li>
+          <li>bizsolutions.discovery.active.v1 — active discovery id</li>
+          <li>bizsolutions.discovery.workflows.v1 — workflow comparisons</li>
+          <li>bizsolutions.discovery.presentations.v1 — guided presentations</li>
         </ul>
       </section>
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowDown, ArrowUp, Calculator, Copy, Play, Share2, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Calculator, Copy, GitCompareArrows, Lightbulb, MonitorPlay, Play, Share2, Trash2 } from "lucide-react";
 import { getIndustry, getService } from "../data/catalog";
 import { MODULE_TEMPLATES } from "../data/serviceTemplates";
 import { useApp } from "../store/AppStore";
@@ -87,6 +87,26 @@ export function SolutionsPage() {
       >
         <Calculator className="h-4 w-4" /> Estimate selected solutions
       </button>
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          onClick={() => navigate("/solution-recommendations")}
+          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50"
+        >
+          <Lightbulb className="h-3.5 w-3.5" /> Why recommended
+        </button>
+        <button
+          onClick={() => navigate("/presentation-builder?fromSolutions=1")}
+          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50"
+        >
+          <MonitorPlay className="h-3.5 w-3.5" /> To presentation
+        </button>
+        <button
+          onClick={() => navigate("/workflow-comparison")}
+          className="inline-flex min-h-11 items-center justify-center gap-1 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-600 hover:bg-slate-50"
+        >
+          <GitCompareArrows className="h-3.5 w-3.5" /> Workflow
+        </button>
+      </div>
 
       <ul className="space-y-2">
         {items.map(({ sol, service, industry }, idx) => (
