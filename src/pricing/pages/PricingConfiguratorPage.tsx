@@ -24,8 +24,23 @@ import {
 import {
   ComplexityDots, EstimateDisclaimer, LineTable, ManualReviewBanner, Money, SectionCard,
 } from "../components/pricingUi";
+import { HelpTip } from "../../components/common/HelpTip";
 import { getActiveDiscovery } from "../../discovery/store/discoveryStorage";
 import { sizeRuleFor } from "../../discovery/engine/recommend";
+
+// Plain-language help for the optional-service categories (Step 6).
+const CATEGORY_HELP: Record<string, string> = {
+  "Discovery & Planning": "Up-front work that confirms requirements and lowers risk before building — workshops, documentation, and technical or security assessments.",
+  "Branding & User Experience": "Makes the system look and feel like the client's own — logo, colors, custom domain, and deeper screen changes.",
+  "Data & Migration": "Gets the client's existing records into the system — initial setup, spreadsheet import, cleaning, and migration from an old system.",
+  "Training & Deployment": "Gets the client's team ready and live — admin and staff training, materials, and go-live support.",
+  "Integrations": "Connects the system to other tools the client uses (email, SMS, payments, e-commerce, accounting). Most need a technical assessment first.",
+  "Reporting & Automation": "Custom reports, dashboards, reminders, and approval flows beyond what the standard modules include.",
+  "Support & Ownership": "Ongoing support level, documentation, and ownership options such as source-code handover or exclusivity.",
+};
+
+const OPTIONALS_BADGE_HELP =
+  "Dots show complexity — more dots means more effort, cost, and time. \"Range only\" means the price is an estimate that firms up after assessment. \"Manual review\" means it can't be finalized until a technical review. \"Needs:\" means the option requires another option too.";
 
 const STEPS = [
   "Client & Industry",
@@ -325,12 +340,12 @@ export function PricingConfiguratorPage() {
               <Field label="Employees">
                 <input type="number" min={0} value={input.employees} onChange={(e) => set({ employees: e.target.value })} placeholder="e.g. 15" className={inputCls} />
               </Field>
-              <Field label="System users">
+              <Field label="System users" help="How many people will actually sign in and use the system. This drives per-user pricing, so it's separate from total employee headcount.">
                 <input type="number" min={1} value={input.users} onChange={(e) => set({ users: Math.max(1, Number(e.target.value) || 1) })} className={inputCls} />
               </Field>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Estimated monthly transactions">
+              <Field label="Estimated monthly transactions" help="Rough monthly volume the system will handle (orders, bookings, tickets…). Helps gauge sizing, storage, and usage — an estimate is fine.">
                 <input value={input.monthlyTransactions} onChange={(e) => set({ monthlyTransactions: e.target.value })} placeholder="e.g. 500 orders" className={inputCls} />
               </Field>
               <Field label="Current system or tools">
@@ -751,8 +766,20 @@ function OptionalsStep({ input, set, rules }: { input: EstimateInput; set: (p: P
 
   return (
     <div className="space-y-4">
+      <p className="flex items-center gap-1.5 rounded-xl bg-accent-soft/50 px-3 py-2 text-xs text-slate-600">
+        Optional add-ons beyond the core modules — tap to include. Prices are ranges.
+        <HelpTip text={OPTIONALS_BADGE_HELP} />
+      </p>
       {categories.map((cat) => (
-        <SectionCard key={cat} title={cat}>
+        <SectionCard
+          key={cat}
+          title={
+            <span className="inline-flex items-center gap-1">
+              {cat}
+              {CATEGORY_HELP[cat] && <HelpTip text={CATEGORY_HELP[cat]} />}
+            </span>
+          }
+        >
           <div className="space-y-2">
             {rules.optionalServices
               .filter((o) => o.category === cat)
@@ -838,10 +865,13 @@ function ResultsStep({ input, set, onSave }: { input: EstimateInput; set: (p: Pa
 
       <SectionCard title="Adjustments">
         <div className="grid grid-cols-2 gap-3">
-          <Field label={`Contingency % (suggested ${rules.configurationLevels.find((c) => c.id === input.configurationLevel)?.defaultContingencyPct}%)`}>
+          <Field
+            label={`Contingency % (suggested ${rules.configurationLevels.find((c) => c.id === input.configurationLevel)?.defaultContingencyPct}%)`}
+            help="A safety buffer added to the one-time total for surprises during the build. More customization = more contingency. Avoid setting it to 0 for customized work."
+          >
             <input type="number" min={0} max={50} value={input.contingencyPct} onChange={(e) => set({ contingencyPct: Math.max(0, Number(e.target.value) || 0) })} className={inputCls} />
           </Field>
-          <Field label={`Discount % (max ${settings.maximumDiscountPct}%)`}>
+          <Field label={`Discount % (max ${settings.maximumDiscountPct}%)`} help="A discount applied to the one-time total. Going above the configured maximum triggers an internal warning — this is your negotiation room, not shown as a line the client sees separately.">
             <input type="number" min={0} max={100} value={input.discountPct} onChange={(e) => set({ discountPct: Math.max(0, Number(e.target.value) || 0) })} className={inputCls} />
           </Field>
         </div>
@@ -871,12 +901,13 @@ function ResultsStep({ input, set, onSave }: { input: EstimateInput; set: (p: Pa
   );
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, required, help, children }: { label: string; required?: boolean; help?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-slate-600">
+      <span className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-600">
         {label}
         {required && <span className="text-red-500"> *</span>}
+        {help && <HelpTip text={help} />}
       </span>
       {children}
     </label>

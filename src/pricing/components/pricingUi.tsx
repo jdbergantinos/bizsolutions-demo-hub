@@ -59,7 +59,7 @@ export function LineTable({
   );
 }
 
-export function SectionCard({ title, children, tone = "white" }: { title?: string; children: ReactNode; tone?: "white" | "amber" }) {
+export function SectionCard({ title, children, tone = "white" }: { title?: ReactNode; children: ReactNode; tone?: "white" | "amber" }) {
   return (
     <section
       className={`rounded-2xl border p-4 shadow-sm ${tone === "amber" ? "border-amber-200 bg-amber-50" : "border-slate-200 bg-white"}`}
