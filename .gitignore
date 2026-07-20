@@ -2,3 +2,6 @@ node_modules/
 dist/
 dev-dist/
 *.local
+
+# Private pricing decisions — never publish to the public repo
+PRICING-WORKSHEET.md
