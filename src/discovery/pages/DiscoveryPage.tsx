@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft, ArrowRight, ClipboardList, Copy, Download, FileCheck2, FileText,
   GitCompareArrows, Lightbulb, Map, MonitorPlay, NotebookPen, Package, Plus,
-  RotateCcw, Save, ScanSearch, Trash2, TrendingUp, Upload,
+  RotateCcw, Save, ScanSearch, Trash2, TrendingUp, Upload, UserPlus,
 } from "lucide-react";
 import { getIndustry, INDUSTRIES } from "../../data/catalog";
 import { useApp } from "../../store/AppStore";
@@ -11,13 +11,40 @@ import { useToast } from "../../store/ToastContext";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { EmptyState } from "../../components/common/EmptyState";
 import { Pill } from "../../components/common/Badge";
+import type { ClientProfile } from "../../types";
 import type { DiscoveryRecord, DiscoveryStatus } from "../types";
 import { BUDGET_RANGES, IMPLEMENTATION_PERIODS, OUTCOME_OPTIONS, TOOL_OPTIONS } from "../config/discoveryOptions";
+import { getProblem } from "../config/problemCatalog";
 import { buildDiscoverySummary, discoveryCompleteness } from "../engine/recommend";
 import {
   deleteDiscovery, exportDiscoveryData, getActiveDiscoveryId, importDiscoveryData,
   loadDiscoveries, newDiscovery, setActiveDiscoveryId, upsertDiscovery,
 } from "../store/discoveryStorage";
+import { uid } from "../../utils/storage";
+
+/** Builds a permanent Client Profile from a discovery's collected details. */
+function profileFromDiscovery(d: DiscoveryRecord): ClientProfile {
+  const problemTitles = d.problems
+    .map((p) => getProblem(p.problemId)?.title ?? p.customTitle)
+    .filter(Boolean)
+    .join("; ");
+  const tools = [d.operations.tools.join(", "), d.operations.toolsOther].filter(Boolean).join(" — ");
+  const outcomes = [d.desiredOutcomes.join(", "), d.outcomesOther].filter(Boolean).join(" — ");
+  return {
+    id: uid(),
+    businessName: d.business.businessName,
+    contactPerson: d.business.contactPerson,
+    industryId: d.business.industryId,
+    businessType: d.business.businessExample,
+    branches: String(d.business.branches),
+    employees: d.business.employees,
+    currentSystems: tools,
+    primaryProblems: problemTitles || d.business.notes,
+    desiredOutcomes: outcomes,
+    notes: d.business.notes,
+    createdAt: new Date().toISOString(),
+  };
+}
 
 const STATUS_META: Record<DiscoveryStatus, { label: string; tone: "gray" | "blue" | "amber" | "green" | "violet" }> = {
   draft: { label: "Draft", tone: "gray" },
@@ -89,6 +116,7 @@ function DiscoveryHub({
 }) {
   const toast = useToast();
   const navigate = useNavigate();
+  const { profiles, saveProfile } = useApp();
   const activeId = getActiveDiscoveryId();
   const [confirmDelete, setConfirmDelete] = useState<DiscoveryRecord | null>(null);
   const [importText, setImportText] = useState("");
@@ -179,6 +207,7 @@ function DiscoveryHub({
               .map((r) => {
                 const st = STATUS_META[r.status];
                 const active = r.id === activeId;
+                const linkedProfile = r.clientProfileId ? profiles.find((p) => p.id === r.clientProfileId) : undefined;
                 return (
                   <li key={r.id} className={`rounded-2xl border bg-white p-4 shadow-sm ${active ? "border-accent ring-1 ring-accent/30" : "border-slate-200"}`}>
                     <div className="flex items-center justify-between gap-2">
@@ -219,6 +248,27 @@ function DiscoveryHub({
                       >
                         Build presentation
                       </button>
+                      {linkedProfile ? (
+                        <span className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 text-xs font-medium text-emerald-700">
+                          <UserPlus className="h-3.5 w-3.5" /> In Client Profiles
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (!r.business.businessName.trim()) {
+                              toast("Add the client's business name to the discovery first.", "info");
+                              return;
+                            }
+                            const profile = profileFromDiscovery(r);
+                            saveProfile(profile);
+                            setRecords(upsertDiscovery({ ...r, clientProfileId: profile.id, updatedAt: new Date().toISOString() }));
+                            toast(`"${profile.businessName}" saved to Client Profiles.`);
+                          }}
+                          className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-slate-300 px-3 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                        >
+                          <UserPlus className="h-3.5 w-3.5" /> Save to Client Profile
+                        </button>
+                      )}
                       <button
                         onClick={() => setConfirmDelete(r)}
                         className="ml-auto min-h-10 rounded-lg border border-red-200 px-3 text-xs font-medium text-red-600 hover:bg-red-50"
