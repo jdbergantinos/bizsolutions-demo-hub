@@ -27,6 +27,15 @@ import { ScopeBuilderPage } from "./value/pages/ScopeBuilderPage";
 import { RoadmapPage } from "./value/pages/RoadmapPage";
 import { MeetingsPage } from "./value/pages/MeetingsPage";
 import { SummaryPage } from "./value/pages/SummaryPage";
+import { TrustCenterPage } from "./toolkit/pages/TrustCenterPage";
+import { IntegrationsPage } from "./toolkit/pages/IntegrationsPage";
+import { NotificationSimulatorPage } from "./toolkit/pages/NotificationSimulatorPage";
+import { ApprovalShowcasePage } from "./toolkit/pages/ApprovalShowcasePage";
+import { DashboardSelectorPage } from "./toolkit/pages/DashboardSelectorPage";
+import { TemplatesPage } from "./toolkit/pages/TemplatesPage";
+import { ScenarioLibraryPage } from "./toolkit/pages/ScenarioLibraryPage";
+import { ObjectionGuidePage } from "./toolkit/pages/ObjectionGuidePage";
+import { HistoryPage } from "./toolkit/pages/HistoryPage";
 import { EmptyState } from "./components/common/EmptyState";
 
 export default function App() {
@@ -57,6 +66,15 @@ export default function App() {
           <Route path="roadmap" element={<RoadmapPage />} />
           <Route path="meetings" element={<MeetingsPage />} />
           <Route path="summary" element={<SummaryPage />} />
+          <Route path="trust" element={<TrustCenterPage />} />
+          <Route path="integrations" element={<IntegrationsPage />} />
+          <Route path="notifications" element={<NotificationSimulatorPage />} />
+          <Route path="approvals-showcase" element={<ApprovalShowcasePage />} />
+          <Route path="dashboard-selector" element={<DashboardSelectorPage />} />
+          <Route path="templates" element={<TemplatesPage />} />
+          <Route path="scenario-library" element={<ScenarioLibraryPage />} />
+          <Route path="objections" element={<ObjectionGuidePage />} />
+          <Route path="history" element={<HistoryPage />} />
           <Route path="pricing" element={<PricingListPage />} />
           <Route path="pricing/new" element={<PricingConfiguratorPage />} />
           <Route path="pricing/estimate/:estimateId" element={<EstimateViewPage />} />

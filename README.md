@@ -188,6 +188,59 @@ presenter-entered estimates.
 JSON export/import (invalid imported entries are dropped with readable errors, never
 crashes).
 
+## Trust, Scenarios & Presentation History (Phase C)
+
+All Phase C tools live in the Discovery hub's **Presenter toolkit** section:
+
+- **Trust Center** (`/trust`) — client-friendly security explanations grouped honestly
+  (production foundation / optional / needs assessment / third-party / not in demo / not
+  verified), plus the included/not-included demonstration boundary with industry-specific
+  exclusions. **Limitations**: the demo proves workflows, never security, compliance,
+  certification, uptime, or data protection — the screen says so verbatim, and no
+  compliance claim is ever made. The boundary notice appears automatically (once per
+  industry) before opening sensitive-industry demos.
+- **Integration Showcase** (`/integrations`) — 37 integrations in 7 categories with honest
+  statuses (nothing claims to be live; payment integrations always require technical
+  assessment and the system never holds funds), third-party cost notes, risks, and a
+  13-question assessment questionnaire saved per integration.
+- **Notification Simulator** (`/notifications`) — 9 events × 5 channels with editable
+  messages, channel-styled previews, and a stored history. Every simulation is labeled
+  "Simulation only — no external message was sent."
+- **Approval Showcase** (`/approvals-showcase`) — 9 scenarios with conceptual multi-level
+  chains, comments, activity history, and per-scenario reset; labeled demo behavior.
+- **Dashboard & Report Selector** (`/dashboard-selector`) — 16 cards with reorder,
+  role/branch visibility, custom-report flags; selections are preferences, not final
+  requirements.
+- **Industry Templates** (`/templates`) — 12 industry starting points (problems, discovery
+  questions, workflows, dashboards, integrations, next step). Applying one always creates
+  a **new** presentation + starter workflow; saved presentations are never overwritten.
+  Configure in `src/toolkit/config/industryTemplates.ts`.
+- **Scenario Library** (`/scenario-library`) — 15 realistic walkthroughs (happy path,
+  low stock, forgotten lead, failed delivery…) with steps, discussion questions, and
+  business value; launch opens the matching demo, customizations/duplicates are stored
+  separately and resettable to the library version. Configure in
+  `src/toolkit/config/scenarioLibrary.ts`.
+- **Objection Guide** (`/objections`) — 16 hard questions with recommended responses,
+  client questions, overpromise risks, and commercial-model pointers. **Presenter-only**;
+  marked internal guidance.
+- **Presentation History** (`/history`) — a lightweight **local** sales tracker (explicitly
+  not a secure multi-user CRM): per-presentation records, opportunity statuses, and
+  dashboard cards (this month, qualified, proposals, follow-ups due, pipeline value from
+  linked estimates, won/lost, by industry).
+
+### Backup & restore
+
+Settings → **Backup & restore** exports every `bizsolutions.*` storage key as one
+versioned JSON (`backupVersion: 1`). Restoring validates first (invalid JSON, wrong app,
+foreign keys → readable errors, never a crash), previews key counts, then offers
+**Merge** (overwrite only keys present in the backup) or **Replace** (destructive, wipes
+all app data first, double-confirmed). Sample backups must never contain real client data.
+
+### Phase C storage keys
+
+`bizsolutions.toolkit.assessments.v1`, `.notifications.v1`, `.approvals.v1`,
+`.dashboards.v1`, `.scenarios.v1`, `.history.v1`, `.boundaryack.v1`.
+
 ## Solution & Pricing Configurator
 
 The Pricing Configurator (`/pricing` navigation item) builds **preliminary, range-based

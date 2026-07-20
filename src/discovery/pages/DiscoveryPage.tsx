@@ -107,6 +107,18 @@ function DiscoveryHub({
     { to: "/summary", label: "Discussion Summary", icon: FileText, desc: "Polished client summary and acknowledgment" },
   ];
 
+  const toolkitTools = [
+    { to: "/templates", label: "Industry Templates", desc: "Ready-made presentation starting points" },
+    { to: "/scenario-library", label: "Scenario Library", desc: "Realistic demo walkthroughs" },
+    { to: "/trust", label: "Trust Center", desc: "Security explanation & demo boundaries" },
+    { to: "/integrations", label: "Integrations", desc: "Catalog & assessment questionnaire" },
+    { to: "/notifications", label: "Notification Simulator", desc: "Preview and simulate messages" },
+    { to: "/approvals-showcase", label: "Approval Showcase", desc: "Multi-level approval walkthroughs" },
+    { to: "/dashboard-selector", label: "Dashboard Selector", desc: "Pick cards & reports with the client" },
+    { to: "/objections", label: "Objection Guide", desc: "Presenter-only answers to hard questions" },
+    { to: "/history", label: "Presentation History", desc: "Lightweight local sales tracker" },
+  ];
+
   return (
     <div className="space-y-4">
       <header>
@@ -138,6 +150,18 @@ function DiscoveryHub({
           </Link>
         ))}
       </div>
+
+      <section>
+        <h2 className="mb-2 text-sm font-semibold text-slate-800">Presenter toolkit</h2>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {toolkitTools.map((t) => (
+            <Link key={t.to} to={t.to} className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm hover:shadow">
+              <p className="text-sm font-semibold text-slate-900">{t.label}</p>
+              <p className="mt-0.5 text-[11px] text-slate-500">{t.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section>
         <h2 className="mb-2 text-sm font-semibold text-slate-800">Discovery records ({records.length})</h2>

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Calculator, Database, HardDrive, Info, RotateCcw, ShieldAlert } from "lucide-react";
+import { Archive, Calculator, Database, Download, HardDrive, Info, RotateCcw, ShieldAlert, Upload } from "lucide-react";
 import { loadPricingSettings } from "../pricing/store/pricingStorage";
+import { exportBackup, importBackup, validateBackup, type AppBackup, type BackupPreview } from "../toolkit/engine/backup";
 import { INDUSTRIES } from "../data/catalog";
 import { useApp } from "../store/AppStore";
 import { useToast } from "../store/ToastContext";
@@ -23,6 +24,9 @@ export function SettingsPage() {
   const online = useOnline();
   const [industryPick, setIndustryPick] = useState("");
   const [pending, setPending] = useState<PendingReset | null>(null);
+  const [backupText, setBackupText] = useState("");
+  const [backupPreview, setBackupPreview] = useState<{ backup: AppBackup; preview: BackupPreview } | null>(null);
+  const [confirmReplace, setConfirmReplace] = useState(false);
 
   const storageUsed = (() => {
     let bytes = 0;
@@ -159,6 +163,83 @@ export function SettingsPage() {
         </Link>
       </section>
 
+      {/* Backup & restore */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-800">
+          <Archive className="h-4 w-4" /> Backup & restore
+        </h2>
+        <p className="mb-2 text-xs text-slate-500">
+          Exports everything this app stores on this device — profiles, discoveries, presentations,
+          estimates, ROI, scopes, roadmaps, meetings, history, custom scenarios, pricing
+          configuration, and settings — as one versioned JSON file.
+        </p>
+        <button
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(exportBackup());
+              toast("Full backup JSON copied to clipboard — save it somewhere safe.");
+            } catch {
+              setBackupText(exportBackup());
+              toast("Clipboard blocked — backup placed in the box below for manual copying.", "info");
+            }
+          }}
+          className="inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl bg-accent text-sm font-semibold text-white hover:opacity-90"
+        >
+          <Download className="h-4 w-4" /> Export full backup
+        </button>
+        <textarea
+          value={backupText}
+          onChange={(e) => setBackupText(e.target.value)}
+          rows={4}
+          placeholder="Paste a backup JSON here to restore…"
+          className="mt-2 min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-xs"
+        />
+        <button
+          disabled={!backupText.trim()}
+          onClick={() => {
+            const result = validateBackup(backupText);
+            if (result.errors.length > 0) {
+              toast(`Backup rejected: ${result.errors[0]}`, "info");
+              setBackupPreview(null);
+            } else {
+              setBackupPreview({ backup: result.backup!, preview: result.preview! });
+            }
+          }}
+          className="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+        >
+          <Upload className="h-4 w-4" /> Validate & preview restore
+        </button>
+        {backupPreview && (
+          <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs font-semibold text-slate-700">
+              Backup from {backupPreview.preview.exportedAt.slice(0, 19).replace("T", " ")} · {backupPreview.preview.keyCount} storage keys. Nothing applied yet.
+            </p>
+            <ul className="mt-1 max-h-32 space-y-0.5 overflow-y-auto text-[11px] text-slate-500">
+              {backupPreview.preview.keys.map((k) => (
+                <li key={k.key}>{k.key} — {k.summary}</li>
+              ))}
+            </ul>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => {
+                  const n = importBackup(backupPreview.backup, "merge");
+                  setBackupPreview(null);
+                  setBackupText("");
+                  toast(`Merged ${n} storage keys from the backup. Reload to see everything.`);
+                  setTimeout(() => window.location.reload(), 1200);
+                }}
+                className="min-h-11 rounded-xl bg-accent text-xs font-semibold text-white"
+              >
+                Merge into current data
+              </button>
+              <button onClick={() => setConfirmReplace(true)} className="min-h-11 rounded-xl bg-red-600 text-xs font-semibold text-white hover:bg-red-700">
+                Replace all current data
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
       {/* Storage keys */}
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <h2 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-800">
@@ -186,6 +267,13 @@ export function SettingsPage() {
           <li>bizsolutions.value.meetings.v1 — meeting records</li>
           <li>bizsolutions.value.acknowledgments.v1 — client acknowledgments</li>
           <li>bizsolutions.value.summaries.v1 — saved discussion summaries</li>
+          <li>bizsolutions.toolkit.assessments.v1 — integration assessments</li>
+          <li>bizsolutions.toolkit.notifications.v1 — simulated notification history</li>
+          <li>bizsolutions.toolkit.approvals.v1 — approval showcase states</li>
+          <li>bizsolutions.toolkit.dashboards.v1 — dashboard preferences</li>
+          <li>bizsolutions.toolkit.scenarios.v1 — customized demo scenarios</li>
+          <li>bizsolutions.toolkit.history.v1 — presentation history / sales tracker</li>
+          <li>bizsolutions.toolkit.boundaryack.v1 — acknowledged demo-boundary notices</li>
         </ul>
       </section>
 
@@ -215,6 +303,23 @@ export function SettingsPage() {
           confirmLabel="Reset"
           onConfirm={() => runReset(pending)}
           onCancel={() => setPending(null)}
+        />
+      )}
+
+      {confirmReplace && backupPreview && (
+        <ConfirmDialog
+          title="Replace ALL current data?"
+          message="Every record currently on this device will be deleted and replaced by the backup's contents. This cannot be undone unless you exported a backup of the current data first."
+          confirmLabel="Replace everything"
+          onConfirm={() => {
+            const n = importBackup(backupPreview.backup, "replace");
+            setConfirmReplace(false);
+            setBackupPreview(null);
+            setBackupText("");
+            toast(`Replaced all data with ${n} storage keys from the backup. Reloading…`);
+            setTimeout(() => window.location.reload(), 1200);
+          }}
+          onCancel={() => setConfirmReplace(false)}
         />
       )}
     </div>

@@ -1,6 +1,9 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, Check, Info, X } from "lucide-react";
+import { Modal } from "../components/common/Modal";
+import { DEMO_EXCLUDES, INDUSTRY_EXCLUSIONS } from "../toolkit/config/demoBoundaries";
+import { acknowledgeBoundary, boundaryAcknowledged } from "../toolkit/store/toolkitStorage";
 import type { DemoModuleType } from "../types";
 import { getIndustry, getService } from "../data/catalog";
 import { getModuleSampleScenario, getScenarioForService } from "../data/scenarios";
@@ -17,6 +20,11 @@ export function ServiceDemoPage() {
 
   const service = getService(serviceId);
   const industry = service ? getIndustry(service.industryId) : undefined;
+  // Sensitive industries get a one-time demo-boundary notice before the demo.
+  const sensitive = Boolean(industry?.cautions?.length);
+  const [boundaryOpen, setBoundaryOpen] = useState(
+    () => sensitive && industry !== undefined && !boundaryAcknowledged(industry.id),
+  );
 
   const scenario = useMemo(
     () => (service && industry ? getScenarioForService(service, industry) : null),
@@ -57,6 +65,37 @@ export function ServiceDemoPage() {
         </p>
       </header>
       <DemoHost config={scenario} cautions={industry.cautions} />
+
+      {boundaryOpen && (
+        <Modal title="Before this demonstration" onClose={() => setBoundaryOpen(false)}>
+          <div className="space-y-3 text-sm text-slate-700">
+            <p>
+              <strong>{industry.name}</strong> is a sensitive area. This demonstration shows
+              workflows and screens only — it does not include:
+            </p>
+            <ul className="space-y-1 text-xs">
+              {[...DEMO_EXCLUDES.slice(0, 6), ...(INDUSTRY_EXCLUSIONS[industry.id] ?? [])].map((x) => (
+                <li key={x} className="flex items-start gap-1.5">
+                  <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" /> {x}
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-slate-500">
+              The full list is on the Trust Center screen. Final controls require technical
+              design, implementation, testing, and contractual confirmation.
+            </p>
+            <button
+              onClick={() => {
+                acknowledgeBoundary(industry.id);
+                setBoundaryOpen(false);
+              }}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-white hover:opacity-90"
+            >
+              <Check className="h-4 w-4" /> Understood — continue to the demo
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
