@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calculator, ChevronLeft, ChevronRight, LogOut, MonitorPlay, Play, RotateCcw } from "lucide-react";
+import { ArrowLeftRight, Calculator, ChevronLeft, ChevronRight, LogOut, MonitorPlay, Play, RotateCcw } from "lucide-react";
 import { Modal } from "../components/common/Modal";
 import { loadEstimates, loadPricingRules, loadPricingSettings } from "../pricing/store/pricingStorage";
 import { calculateEstimate } from "../pricing/engine/calculateEstimate";
@@ -58,6 +58,40 @@ function seedPresentationFromActiveClient(base: PresentationState, profiles: Cli
   };
 }
 
+/** A fresh presentation setup for the active client, or null if there's no
+ *  named active client to switch to. */
+function activeClientSeed(profiles: ClientProfile[]): PresentationState | null {
+  const seed = seedPresentationFromActiveClient({ ...EMPTY_PRESENTATION, active: false }, profiles);
+  return seed.businessName.trim() ? seed : null;
+}
+
+/** Shown when Presentation Mode is staged for a different client than the one
+ *  set active in Discovery — a one-tap switch, nothing changes until tapped. */
+function ClientMismatchBanner({
+  activeName,
+  currentName,
+  onSwitch,
+}: {
+  activeName: string;
+  currentName: string;
+  onSwitch: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2 rounded-2xl border border-amber-300 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-amber-900">
+        <span className="font-semibold">Your active client is {activeName}</span>, but this presentation is set up
+        for {currentName || "another client"}.
+      </p>
+      <button
+        onClick={onSwitch}
+        className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 text-xs font-semibold text-white hover:opacity-90"
+      >
+        <ArrowLeftRight className="h-4 w-4" /> Switch to {activeName}
+      </button>
+    </div>
+  );
+}
+
 // ---------------- Setup ----------------
 
 function PresentationSetup() {
@@ -71,6 +105,12 @@ function PresentationSetup() {
 
   const industry = getIndustry(draft.industryId);
   const scenario = GUIDED_SCENARIOS.find((g) => g.id === draft.scenarioId);
+
+  // The setup is staged in `draft`; nudge to switch when it's for a different
+  // client than the active one.
+  const seed = activeClientSeed(profiles);
+  const mismatch =
+    !!seed && !!draft.businessName.trim() && draft.businessName.trim().toLowerCase() !== seed.businessName.trim().toLowerCase();
 
   const inputCls =
     "min-h-12 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20";
@@ -104,6 +144,17 @@ function PresentationSetup() {
 
   return (
     <div className="space-y-4">
+      {mismatch && seed && (
+        <ClientMismatchBanner
+          activeName={seed.businessName}
+          currentName={draft.businessName}
+          onSwitch={() => {
+            setDraft(seed);
+            toast(`Loaded ${seed.businessName} into the setup.`);
+          }}
+        />
+      )}
+
       <header>
         <h1 className="flex items-center gap-2 text-xl font-bold text-slate-900">
           <MonitorPlay className="h-5 w-5 text-accent" /> Presentation Mode
@@ -297,7 +348,7 @@ function PresentationSetup() {
 // ---------------- Runner ----------------
 
 function PresentationRunner() {
-  const { presentation, setPresentation, resetPresentation } = useApp();
+  const { presentation, setPresentation, resetPresentation, profiles } = useApp();
   const toast = useToast();
   const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
@@ -306,6 +357,12 @@ function PresentationRunner() {
     () => (presentation.estimateId ? loadEstimates().find((e) => e.id === presentation.estimateId) ?? null : null),
     [presentation.estimateId],
   );
+
+  // If the presenter switched the active client mid-way, nudge to re-point the
+  // presentation — but never flip a live presentation without a tap.
+  const seed = activeClientSeed(profiles);
+  const mismatch =
+    !!seed && presentation.businessName.trim().toLowerCase() !== seed.businessName.trim().toLowerCase();
 
   const scenario = GUIDED_SCENARIOS.find((g) => g.id === presentation.scenarioId) ?? GUIDED_SCENARIOS[0];
   const industry = getIndustry(presentation.industryId);
@@ -333,6 +390,17 @@ function PresentationRunner() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
+      {mismatch && seed && (
+        <ClientMismatchBanner
+          activeName={seed.businessName}
+          currentName={presentation.businessName}
+          onSwitch={() => {
+            setPresentation({ ...seed, active: false, stepIndex: 0 });
+            toast(`Switched to ${seed.businessName}. Review the setup, then start when ready.`);
+          }}
+        />
+      )}
+
       {/* Client banner */}
       <div className="flex items-center gap-4 rounded-2xl bg-accent p-5 text-white">
         {presentation.logo ? (
