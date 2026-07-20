@@ -7,7 +7,7 @@ import { Modal } from "../../components/common/Modal";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { loadPricingSettings } from "../../pricing/store/pricingStorage";
 import type { SelectedProblem } from "../types";
-import { BUDGET_RANGES, OUTCOME_OPTIONS, TOOL_OPTIONS } from "../config/discoveryOptions";
+import { BUDGET_RANGES, IMPLEMENTATION_PERIODS, OUTCOME_OPTIONS, TOOL_OPTIONS } from "../config/discoveryOptions";
 import { PROBLEM_CATALOG, PROBLEM_CATEGORIES } from "../config/problemCatalog";
 import { newDiscovery, setActiveDiscoveryId, upsertDiscovery } from "../store/discoveryStorage";
 
@@ -24,8 +24,11 @@ interface IntakeForm {
   branches: number;
   employees: string;
   tools: string[];
+  fieldStaff: boolean | null;
+  customerPortalExpected: boolean | null;
   problemIds: string[];
   outcomes: string[];
+  implementationPeriod: string;
   budgetRange: string;
   notes: string;
 }
@@ -49,8 +52,11 @@ export function ClientIntakePage() {
     branches: 1,
     employees: "",
     tools: [],
+    fieldStaff: null,
+    customerPortalExpected: null,
     problemIds: [],
     outcomes: [],
+    implementationPeriod: "",
     budgetRange: "",
     notes: "",
   }));
@@ -111,10 +117,18 @@ export function ClientIntakePage() {
       location: form.location.trim(),
       branches: Math.max(1, form.branches),
       employees: form.employees,
+      implementationPeriod: form.implementationPeriod,
       budgetRange: form.budgetRange,
       notes: form.notes.trim(),
     };
-    d.operations = { ...d.operations, tools: form.tools };
+    d.operations = {
+      ...d.operations,
+      tools: form.tools,
+      // 2+ branches means multi-branch — derived, not asked again.
+      multiBranch: form.branches >= 2,
+      fieldStaff: form.fieldStaff === true,
+      customerPortalExpected: form.customerPortalExpected === true,
+    };
     d.desiredOutcomes = form.outcomes;
     d.problems = form.problemIds.map(
       (id): SelectedProblem => ({ problemId: id, severity: "moderate", priority: "medium", note: "", verification: "verified" }),
@@ -233,7 +247,15 @@ export function ClientIntakePage() {
         </Section>
 
         <Section title="What do you use today?">
-          <ChipGroup options={TOOL_OPTIONS} selected={form.tools} onToggle={(v) => toggle("tools", v)} />
+          {/* "Other" is dropped for the client form — anything unusual goes in Notes. */}
+          <ChipGroup options={TOOL_OPTIONS.filter((o) => o !== "Other")} selected={form.tools} onToggle={(v) => toggle("tools", v)} />
+        </Section>
+
+        <Section title="How you operate">
+          <div className="space-y-4">
+            <YesNo label="Do any of your staff work out in the field (deliveries, on-site jobs)?" value={form.fieldStaff} onChange={(v) => set({ fieldStaff: v })} />
+            <YesNo label="Would your customers use an app to book or check status?" value={form.customerPortalExpected} onChange={(v) => set({ customerPortalExpected: v })} />
+          </div>
         </Section>
 
         <Section title="What are your biggest headaches?" hint="Tap all that feel familiar.">
@@ -262,18 +284,28 @@ export function ClientIntakePage() {
         </Section>
 
         <Section title="What would you love to improve?">
-          <ChipGroup options={OUTCOME_OPTIONS} selected={form.outcomes} onToggle={(v) => toggle("outcomes", v)} />
+          <ChipGroup options={OUTCOME_OPTIONS.filter((o) => o !== "Other")} selected={form.outcomes} onToggle={(v) => toggle("outcomes", v)} />
         </Section>
 
         <Section title="Anything else? (optional)">
-          <Field label="Budget you have in mind">
-            <select value={form.budgetRange} onChange={(e) => set({ budgetRange: e.target.value })} className={inputCls}>
-              <option value="">— Prefer not to say —</option>
-              {BUDGET_RANGES.map((b) => (
-                <option key={b} value={b}>{b}</option>
-              ))}
-            </select>
-          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="When are you hoping to start?">
+              <select value={form.implementationPeriod} onChange={(e) => set({ implementationPeriod: e.target.value })} className={inputCls}>
+                <option value="">— Not sure yet —</option>
+                {IMPLEMENTATION_PERIODS.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Budget you have in mind">
+              <select value={form.budgetRange} onChange={(e) => set({ budgetRange: e.target.value })} className={inputCls}>
+                <option value="">— Prefer not to say —</option>
+                {BUDGET_RANGES.map((b) => (
+                  <option key={b} value={b}>{b}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
           <Field label="Notes">
             <textarea value={form.notes} onChange={(e) => set({ notes: e.target.value })} rows={3} placeholder="e.g. We'd like to start with one branch" className={`${inputCls} py-2`} />
           </Field>
@@ -366,6 +398,30 @@ function Field({ label, required, children }: { label: string; required?: boolea
       </span>
       {children}
     </label>
+  );
+}
+
+function YesNo({ label, value, onChange }: { label: string; value: boolean | null; onChange: (v: boolean) => void }) {
+  return (
+    <div>
+      <p className="mb-1.5 text-sm font-medium text-slate-700">{label}</p>
+      <div className="flex gap-2">
+        <button
+          onClick={() => onChange(true)}
+          aria-pressed={value === true}
+          className={`min-h-11 flex-1 rounded-xl text-sm font-medium ${value === true ? "bg-accent text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
+        >
+          Yes
+        </button>
+        <button
+          onClick={() => onChange(false)}
+          aria-pressed={value === false}
+          className={`min-h-11 flex-1 rounded-xl text-sm font-medium ${value === false ? "bg-accent text-white" : "border border-slate-300 bg-white text-slate-600 hover:bg-slate-50"}`}
+        >
+          No
+        </button>
+      </div>
+    </div>
   );
 }
 
