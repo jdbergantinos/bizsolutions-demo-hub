@@ -7,6 +7,7 @@ import { Pill } from "../../components/common/Badge";
 import { pesoRange } from "../../pricing/engine/money";
 import { loadEstimates } from "../../pricing/store/pricingStorage";
 import { getActiveDiscovery, loadPresentations, upsertPresentation } from "../../discovery/store/discoveryStorage";
+import { estimateForDiscovery, roiForDiscovery } from "../../discovery/engine/workspace";
 import type { RoiEstimate, RoiInputs } from "../types";
 import { calculateRoi, emptyRoiInputs, ROI_DISCLAIMER } from "../engine/calculateRoi";
 import { newRoiEstimate, roiRepo } from "../store/valueStorage";
@@ -18,13 +19,15 @@ const UNCERTAINTY_TONE = { high: "red", medium: "amber", low: "green" } as const
 export function RoiCalculatorPage() {
   const navigate = useNavigate();
   const toast = useToast();
+  const activeDiscovery = getActiveDiscovery();
   const [roi, setRoi] = useState<RoiEstimate>(() => {
-    const existing = roiRepo.loadAll()[0];
+    // The ACTIVE client's ROI record only — never the first ROI that exists.
+    const existing = roiForDiscovery(activeDiscovery);
     if (existing) return existing;
-    const d = getActiveDiscovery();
     return newRoiEstimate({
-      name: d ? `ROI — ${d.business.businessName || "client"}` : "ROI estimate",
-      discoveryId: d?.id,
+      name: activeDiscovery ? `ROI — ${activeDiscovery.business.businessName || "client"}` : "ROI estimate",
+      discoveryId: activeDiscovery?.id,
+      pricingEstimateId: estimateForDiscovery(activeDiscovery)?.id,
     });
   });
   const [confirmReset, setConfirmReset] = useState(false);

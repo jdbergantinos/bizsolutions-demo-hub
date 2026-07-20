@@ -6,6 +6,7 @@ import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { Modal } from "../../components/common/Modal";
 import { Pill } from "../../components/common/Badge";
 import { getActiveDiscovery, loadPresentations, upsertPresentation } from "../../discovery/store/discoveryStorage";
+import { roadmapForDiscovery } from "../../discovery/engine/workspace";
 import { defaultRoadmapStages, ROADMAP_DISCLAIMER } from "../config/roadmapStages";
 import { newRoadmap, roadmapRepo } from "../store/valueStorage";
 import type { ImplementationRoadmap, RoadmapStage } from "../types";
@@ -17,9 +18,10 @@ export function RoadmapPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [roadmap, setRoadmap] = useState<ImplementationRoadmap>(() => {
-    const existing = roadmapRepo.loadAll()[0];
-    if (existing) return existing;
+    // The ACTIVE client's roadmap only — never the first roadmap that exists.
     const d = getActiveDiscovery();
+    const existing = roadmapForDiscovery(d);
+    if (existing) return existing;
     return newRoadmap({
       name: d ? `Roadmap — ${d.business.businessName || "client"}` : "Implementation roadmap",
       discoveryId: d?.id,

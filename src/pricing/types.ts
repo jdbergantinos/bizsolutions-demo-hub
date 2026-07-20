@@ -214,6 +214,8 @@ export interface PricingSettings {
 
 export interface EstimateInput {
   clientProfileId?: string;
+  /** Links the estimate to the discovery it was built from (client workspace). */
+  discoveryId?: string;
   businessName: string;
   contactPerson: string;
   industryId: string;

@@ -11,7 +11,8 @@ import type { DemoModuleType } from "../../types";
 import type { CurrentWorkflowStep, ProposedWorkflowStep, WorkflowComparison } from "../types";
 import { templateCurrentSteps, templateProposedSteps } from "../config/workflowTemplates";
 import { workflowSavings } from "../engine/recommend";
-import { getActiveDiscovery, loadWorkflows, upsertDiscovery, upsertWorkflow, deleteWorkflow } from "../store/discoveryStorage";
+import { getActiveDiscovery, upsertDiscovery, upsertWorkflow, deleteWorkflow } from "../store/discoveryStorage";
+import { workflowForDiscovery } from "../engine/workspace";
 import { uid } from "../../utils/storage";
 
 const inputCls = "min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm";
@@ -46,12 +47,8 @@ export function WorkflowComparisonPage() {
 
   const [workflow, setWorkflow] = useState<WorkflowComparison | null>(() => {
     const discovery = getActiveDiscovery();
-    // Reuse the discovery's linked workflow when it exists.
-    if (discovery?.workflowId) {
-      const existing = loadWorkflows().find((w) => w.id === discovery.workflowId);
-      if (existing) return existing;
-    }
-    const existing = loadWorkflows()[0];
+    // The ACTIVE client's workflow only — never the first workflow that exists.
+    const existing = workflowForDiscovery(discovery);
     if (existing && !params.get("template")) return existing;
     const w = newWorkflow(discovery?.id, params.get("industry") ?? discovery?.business.industryId);
     upsertWorkflow(w);

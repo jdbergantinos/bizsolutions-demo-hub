@@ -6,6 +6,7 @@ import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { getService } from "../../data/catalog";
 import { loadEstimates } from "../../pricing/store/pricingStorage";
 import { getActiveDiscovery, loadPresentations, upsertPresentation } from "../../discovery/store/discoveryStorage";
+import { estimateForDiscovery, scopeForDiscovery } from "../../discovery/engine/workspace";
 import { FEATURE_VALUE } from "../config/featureValue";
 import { SCOPE_DISCLAIMER } from "../config/scopeTemplates";
 import { buildScope } from "../engine/buildScope";
@@ -18,11 +19,11 @@ export function ScopeBuilderPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const [scope, setScope] = useState<PreliminaryScope>(() => {
-    const existing = scopeRepo.loadAll()[0];
-    if (existing) return existing;
+    // The ACTIVE client's scope only — never the first scope that exists.
     const discovery = getActiveDiscovery();
-    const estimate = loadEstimates().filter((e) => !e.archived)[0] ?? null;
-    return buildScope(discovery, estimate);
+    const existing = scopeForDiscovery(discovery);
+    if (existing) return existing;
+    return buildScope(discovery, estimateForDiscovery(discovery));
   });
   const [confirmRegen, setConfirmRegen] = useState(false);
   const [showValue, setShowValue] = useState(false);
@@ -166,8 +167,7 @@ export function ScopeBuilderPage() {
           confirmLabel="Regenerate"
           onConfirm={() => {
             const discovery = getActiveDiscovery();
-            const estimate = loadEstimates().filter((e) => !e.archived)[0] ?? null;
-            const fresh = buildScope(discovery, estimate);
+            const fresh = buildScope(discovery, estimateForDiscovery(discovery));
             setScope({ ...fresh, id: scope.id, createdAt: scope.createdAt });
             setConfirmRegen(false);
             toast("Scope regenerated.");

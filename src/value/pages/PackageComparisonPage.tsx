@@ -11,7 +11,8 @@ import { calculateEstimate } from "../../pricing/engine/calculateEstimate";
 import { inputForPackage } from "../../pricing/engine/createPackageOptions";
 import { pesoRange } from "../../pricing/engine/money";
 import { loadEstimates, loadPricingRules, loadPricingSettings, upsertEstimate } from "../../pricing/store/pricingStorage";
-import { loadPresentations, upsertPresentation } from "../../discovery/store/discoveryStorage";
+import { getActiveDiscovery, loadPresentations, upsertPresentation } from "../../discovery/store/discoveryStorage";
+import { estimateForDiscovery } from "../../discovery/engine/workspace";
 import { CLIENT_DISCLAIMER } from "../../pricing/config/pricingSettings";
 import { uid } from "../../utils/storage";
 
@@ -25,7 +26,9 @@ export function PackageComparisonPage() {
   const settings = useMemo(loadPricingSettings, []);
 
   const [estimates, setEstimates] = useState<PricingEstimate[]>(() => loadEstimates().filter((e) => !e.archived));
-  const [estimateId, setEstimateId] = useState<string>(() => params.get("estimate") ?? loadEstimates().filter((e) => !e.archived)[0]?.id ?? "");
+  const [estimateId, setEstimateId] = useState<string>(
+    () => params.get("estimate") ?? estimateForDiscovery(getActiveDiscovery())?.id ?? loadEstimates().filter((e) => !e.archived)[0]?.id ?? "",
+  );
   const estimate = estimates.find((e) => e.id === estimateId) ?? null;
   const [editPkg, setEditPkg] = useState<PackageOption | null>(null);
 
