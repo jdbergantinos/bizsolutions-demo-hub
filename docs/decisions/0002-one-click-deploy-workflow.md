@@ -1,7 +1,7 @@
 # ADR 0002: Deploy through an owner-triggered GitHub Actions workflow
 
 Date: 2026-09-18
-Status: proposed - awaiting John's approval
+Status: accepted (John, 2026-09-18)
 Decider: John
 Governance link: none - technical decision inside approved scope. Closes the open question in APPROVED-SCOPE.md §8, "Whether deployment should remain manual or later use CI/CD."
 
@@ -58,3 +58,9 @@ Release records in `docs/releases/` and installed-phone checks remain manual.
 - Release records and phone checks are still human steps; the run summary lists what to
   copy into the record.
 - Manual deployment remains possible and follows the same convention.
+- Builds are only byte-identical when made on the same platform: the first dry run on
+  2026-09-18 (run 1) produced a CSS bundle that differed from the locally built
+  deployment then live, so the "identical build, skip" path applies between workflow runs,
+  not between a manual deployment and a workflow run.
+- The dry run on 2026-09-18 (run 1, main `ee1e9bd`) passed every step and pushed nothing;
+  `gh-pages` and the tag list on origin were confirmed unchanged afterwards.

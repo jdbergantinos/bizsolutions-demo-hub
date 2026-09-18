@@ -54,7 +54,10 @@ Deployment is a deliberate, owner-triggered step — nothing deploys automatical
 3. The workflow runs the tests, type-check, and production build; tags the currently live
    deployment as `gh-pages-rollback-<date>-run<N>` (the rollback point); replaces the
    `gh-pages` contents with the fresh build (keeping `.nojekyll`); and pushes one normal
-   commit. If the build is identical to what is live, it stops without committing. The run
+   commit. If the build is identical to what is live, it stops without committing (note:
+   a build made on a different machine, e.g. a local Windows build versus the Linux
+   runner, differs slightly in the CSS bundle, so the first workflow run after a manual
+   deployment always produces a new commit). The run
    summary lists the source commit, the new `gh-pages` commit, the rollback tag, and the
    bundle name.
 4. Wait for the GitHub Pages build (usually under a minute), then do the installed-phone
