@@ -123,6 +123,11 @@ of this scope.
   which overlaps the newer presentation builder and guided presentation.
 - The privacy posture for real prospect data stored on the device.
 - Whether deployment should remain manual or later use CI/CD.
+  Decided 2026-09-18: deployment stays a deliberate owner-triggered step, but runs
+  through a one-click GitHub Actions workflow (`.github/workflows/deploy.yml`) that
+  performs the same tests, build, rollback tag, and `gh-pages` push that were done by
+  hand. Nothing deploys automatically on push. Release records and installed-phone
+  checks remain manual.
 - Whether and when to update dependencies with known vulnerabilities.
   See [ADR 0001](decisions/0001-defer-react-router-7-upgrade.md): the two moderate
   React Router 6 advisories were accepted as low risk on 2026-09-18, then cleared the

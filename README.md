@@ -11,7 +11,7 @@ real data.
 > records are fictional sample data. See [Demo limitations and safety](#demo-limitations-and-safety).
 
 **Live app:** https://jdbergantinos.github.io/bizsolutions-demo-hub/
-(deployed from the `gh-pages` branch — rebuild with `npm run build` and push `dist/` there to update)
+(deployed from the `gh-pages` branch — see [Deploying](#deploying) below)
 
 ---
 
@@ -42,6 +42,29 @@ npm run preview      # serve the production build locally
 
 The production build precaches the entire app, so it works fully offline after the first load.
 Host the `dist/` folder on any static host (HTTPS required for PWA install).
+
+## Deploying
+
+Deployment is a deliberate, owner-triggered step — nothing deploys automatically on push.
+
+1. Merge the approved change to `main` and make sure the **CI** workflow is green.
+2. On GitHub, open **Actions → Deploy to GitHub Pages → Run workflow**. Enter a short
+   release name (it becomes the deploy commit message). Tick **Dry run** first if you want
+   to rehearse: a dry run builds and verifies everything but pushes nothing.
+3. The workflow runs the tests, type-check, and production build; tags the currently live
+   deployment as `gh-pages-rollback-<date>-run<N>` (the rollback point); replaces the
+   `gh-pages` contents with the fresh build (keeping `.nojekyll`); and pushes one normal
+   commit. If the build is identical to what is live, it stops without committing. The run
+   summary lists the source commit, the new `gh-pages` commit, the rollback tag, and the
+   bundle name.
+4. Wait for the GitHub Pages build (usually under a minute), then do the installed-phone
+   checks (update prompt, routes, offline) and add a release record under
+   `docs/releases/`.
+
+**Rollback:** push the rollback tag's tree back to `gh-pages`, e.g.
+`git push origin <tag>^{commit}:gh-pages --force-with-lease` — or re-run the workflow from
+an older `main` commit. Manual deployment (build locally, push `dist/` to `gh-pages`) still
+works and follows the same steps.
 
 ## Installing on a phone (PWA)
 
