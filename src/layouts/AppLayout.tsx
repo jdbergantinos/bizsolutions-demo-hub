@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   Building2, Calculator, ClipboardList, Heart, Home, LayoutGrid, ListChecks,
@@ -8,6 +8,7 @@ import { useApp } from "../store/AppStore";
 import { useOnline } from "../hooks/useOnline";
 import { ReloadPrompt } from "../components/common/ReloadPrompt";
 import { ErrorBoundary } from "../components/common/ErrorBoundary";
+import { PageLoader } from "../components/common/PageLoader";
 import { WorkspaceBar } from "../discovery/components/WorkspaceBar";
 import { getActiveDiscoveryId, setActiveDiscoveryId } from "../discovery/store/discoveryStorage";
 import { activeProfileIdForDiscovery } from "../discovery/engine/workspace";
@@ -121,7 +122,9 @@ export function AppLayout() {
         <main className="mx-auto w-full max-w-5xl px-4 py-4 md:px-8 md:py-8">
           {/* Keyed on the active client so switching reloads the tool's data. */}
           <ErrorBoundary key={location.pathname + location.search + (activeDiscoveryId ?? "")}>
-            <Outlet />
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
           </ErrorBoundary>
         </main>
       </div>
