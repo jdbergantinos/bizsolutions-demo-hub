@@ -80,20 +80,20 @@ All testing used fictional sample data only. No real prospect information was us
   `sw.js`, and the renamed JavaScript bundle changed (`.nojekyll`, icons, manifest, and
   CSS identical to the previous deployment).
 
-### Installed-phone verification — pending (John)
+### Installed-phone verification (completed by John on 2026-09-18)
 
-To complete on an installed device:
+All five checks **passed**, as reported by John after performing them on the installed
+device:
 
-1. Open the installed app online; accept the **"Update available"** prompt.
-2. Settings → Pricing: confirm **Price-table version** reads `owner-2026.09.18` and
-   **Last price review** shows `2026-09-18`. If the version still reads `seed-1.0.0`, the
-   device holds saved pricing settings; open Pricing Administration → Save settings after
-   checking the date, or use **Reset to seed pricing** if rules were customized.
-3. Pricing Configurator → New estimate: a Shared SaaS booking-only micro client should show
-   a base of ₱6,000–₱12,000 one-time and ₱800–₱1,200/mo on the Delivery Model step.
-4. Open one previously saved estimate: it should still display, with its original
-   price-table version shown in its header.
-5. Airplane mode: the app should open and the configurator should still work offline.
+1. **Update prompt — passed.** The installed app showed the update notice and restarted
+   on the new version.
+2. **Version check — passed.** Settings → Pricing showed **Price-table version**
+   `owner-2026.09.18` and **Last price review** `2026-09-18`.
+3. **New estimate — passed.** The Delivery Model step showed Shared SaaS at
+   ₱6,000–₱12,000 one-time and ₱800–₱1,200/mo.
+4. **Saved estimate — passed.** A previously saved estimate still opened, with its
+   original price-table version in its header (expected behavior).
+5. **Offline — passed.** In Airplane mode the app opened and the configurator worked.
 
 ## Rollback
 
@@ -104,7 +104,7 @@ To complete on an installed device:
 
 ## Final release status
 
-**Deployed; phone verification pending.**
+**Verified and operational.**
 
 | Check | Result |
 | --- | --- |
@@ -114,8 +114,8 @@ To complete on an installed device:
 | Runtime preview | Passed |
 | GitHub Pages build | Passed (`built`, no error) |
 | Live-site HTTP fetch | Not performed (permission-blocked in session) |
-| Installed-phone verification | Pending |
-| Offline verification | Pending (phone) |
+| Installed-phone verification | Passed |
+| Offline verification | Passed (phone) |
 | Rollback reference | `gh-pages-rollback-2026-09-18` → `4707a98` |
 
 ## Remaining limitations
