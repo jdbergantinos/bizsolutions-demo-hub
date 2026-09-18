@@ -88,8 +88,7 @@ export function PricingAdminPage() {
       <SectionCard tone="amber">
         <p className="flex items-start gap-2 text-xs text-amber-800">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-          Pricing values are initial internal estimates and require owner review before use with
-          clients. Source: {rules.pricingSource}
+          Estimates remain preliminary and are never binding quotations. Source: {rules.pricingSource}
         </p>
       </SectionCard>
 

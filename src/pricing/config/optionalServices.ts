@@ -1,6 +1,8 @@
 import type { OptionalServiceRule } from "../types";
 
-// Optional add-on services and integrations. INTERNAL PLACEHOLDER prices.
+// Optional add-on services and integrations. Ten commonly sold services were
+// owner-approved 2026-09-18 from market research (thin evidence — labor-hour based);
+// the rest remain INTERNAL PLACEHOLDER prices.
 // deliveryModels: [] means available for every delivery model.
 
 const o = (
@@ -32,7 +34,7 @@ export const OPTIONAL_SERVICES: OptionalServiceRule[] = [
   o("discovery-migration-assessment", "Data migration assessment", "Discovery & Planning", "Assessment of existing records before migration.", { oneTimePrice: { minimum: 5000, maximum: 10000 } }),
 
   // Branding and User Experience
-  o("brand-client", "Client branding", "Branding & User Experience", "Logo and brand colors applied across the system.", { oneTimePrice: { minimum: 5000, maximum: 10000 }, complexity: 1 }),
+  o("brand-client", "Client branding", "Branding & User Experience", "Logo and brand colors applied across the system.", { oneTimePrice: { minimum: 5000, maximum: 12000 }, complexity: 1 }),
   o("brand-colors", "Custom color scheme", "Branding & User Experience", "Custom palette beyond the standard theme.", { oneTimePrice: { minimum: 3000, maximum: 6000 }, complexity: 1 }),
   o("brand-domain", "Custom domain", "Branding & User Experience", "System served on the client's own domain.", { oneTimePrice: { minimum: 3000, maximum: 6000 }, complexity: 1, thirdPartyNote: "Domain registration and renewal fees are billed by the registrar." }),
   o("brand-advanced-ui", "Advanced UI customization", "Branding & User Experience", "Layout and screen changes beyond theming.", { oneTimePrice: { minimum: 15000, maximum: 35000 }, complexity: 4 }),
@@ -40,8 +42,8 @@ export const OPTIONAL_SERVICES: OptionalServiceRule[] = [
   o("brand-app-icon", "Mobile-app icon and splash screen", "Branding & User Experience", "Installable-app icon and launch screen using client branding.", { oneTimePrice: { minimum: 3000, maximum: 6000 }, complexity: 1 }),
 
   // Data and Migration
-  o("data-initial-setup", "Initial data setup", "Data & Migration", "Encoding of starting records (items, staff, customers).", { oneTimePrice: { minimum: 5000, maximum: 12000 } }),
-  o("data-spreadsheet-import", "Spreadsheet import", "Data & Migration", "Import of existing spreadsheets into the system.", { oneTimePrice: { minimum: 5000, maximum: 12000 } }),
+  o("data-initial-setup", "Initial data setup", "Data & Migration", "Encoding of starting records (items, staff, customers).", { oneTimePrice: { minimum: 3000, maximum: 10000 } }),
+  o("data-spreadsheet-import", "Spreadsheet import", "Data & Migration", "Import of existing spreadsheets into the system.", { oneTimePrice: { minimum: 4000, maximum: 20000 } }),
   o("data-cleaning", "Data cleaning", "Data & Migration", "De-duplication and correction of imported records.", { oneTimePrice: { minimum: 6000, maximum: 15000 }, complexity: 3 }),
   o("data-migration", "Data migration", "Data & Migration", "Migration from an existing system.", { oneTimePrice: { minimum: 15000, maximum: 40000 }, complexity: 4, dependencies: ["discovery-migration-assessment"], pricingStatus: "range-only" }),
   o("data-historical-import", "Historical record import", "Data & Migration", "Import of past transactions or records.", { oneTimePrice: { minimum: 8000, maximum: 20000 }, complexity: 3 }),
@@ -49,17 +51,17 @@ export const OPTIONAL_SERVICES: OptionalServiceRule[] = [
 
   // Training and Deployment
   o("train-admin-online", "Online administrator training", "Training & Deployment", "Remote training for system administrators.", { oneTimePrice: { minimum: 3000, maximum: 6000 }, complexity: 1 }),
-  o("train-staff-online", "Online staff training", "Training & Deployment", "Remote training sessions for daily users.", { oneTimePrice: { minimum: 4000, maximum: 8000 }, complexity: 1 }),
+  o("train-staff-online", "Online staff training", "Training & Deployment", "Remote training sessions for daily users.", { oneTimePrice: { minimum: 3000, maximum: 8000 }, complexity: 1 }),
   o("train-onsite", "On-site training", "Training & Deployment", "In-person training at the client's location.", { oneTimePrice: { minimum: 8000, maximum: 20000 }, complexity: 2, thirdPartyNote: "Travel and accommodation outside the base area are billed at cost." }),
   o("train-materials", "Training materials", "Training & Deployment", "Written quick-start guides for the client's team.", { oneTimePrice: { minimum: 3000, maximum: 7000 }, complexity: 1 }),
   o("deploy-assist", "Deployment assistance", "Training & Deployment", "Assisted rollout to devices and branches.", { oneTimePrice: { minimum: 5000, maximum: 12000 } }),
   o("deploy-golive", "Go-live support", "Training & Deployment", "Dedicated support during the first days of use.", { oneTimePrice: { minimum: 5000, maximum: 12000 } }),
 
   // Integrations
-  o("int-website-forms", "Website inquiry forms", "Integrations", "Inquiries from the client's website flow into the system.", { oneTimePrice: { minimum: 5000, maximum: 10000 } }),
-  o("int-facebook-leads", "Facebook lead forms", "Integrations", "Facebook lead-form submissions captured automatically.", { oneTimePrice: { minimum: 6000, maximum: 12000 } }),
+  o("int-website-forms", "Website inquiry forms", "Integrations", "Inquiries from the client's website flow into the system.", { oneTimePrice: { minimum: 5000, maximum: 15000 } }),
+  o("int-facebook-leads", "Facebook lead forms", "Integrations", "Facebook lead-form submissions captured automatically.", { oneTimePrice: { minimum: 6000, maximum: 15000 } }),
   o("int-email", "Email", "Integrations", "System notifications delivered by email.", { oneTimePrice: { minimum: 4000, maximum: 8000 }, monthlyPrice: { minimum: 300, maximum: 800 }, thirdPartyNote: "Email-service fees beyond the included allowance are billed by the provider." }),
-  o("int-sms", "SMS", "Integrations", "SMS notifications and reminders.", { oneTimePrice: { minimum: 5000, maximum: 10000 }, monthlyPrice: { minimum: 300, maximum: 800 }, thirdPartyNote: "SMS credits are billed by the SMS provider per message." }),
+  o("int-sms", "SMS", "Integrations", "SMS notifications and reminders.", { oneTimePrice: { minimum: 5000, maximum: 12000 }, monthlyPrice: { minimum: 300, maximum: 800 }, thirdPartyNote: "SMS credits are billed by the SMS provider per message." }),
   o("int-gcal", "Google Calendar", "Integrations", "Bookings synced with Google Calendar.", { oneTimePrice: { minimum: 5000, maximum: 10000 } }),
   o("int-payment", "Payment gateway", "Integrations", "Online payment collection via a licensed gateway.", { oneTimePrice: { minimum: 12000, maximum: 25000 }, complexity: 4, manualReviewRequired: true, pricingStatus: "range-only", thirdPartyNote: "Payment-gateway transaction fees are charged by the gateway provider." }),
   o("int-accounting", "Accounting software", "Integrations", "Data exchange with an established accounting tool.", { oneTimePrice: { minimum: 12000, maximum: 30000 }, complexity: 4, pricingStatus: "range-only", thirdPartyNote: "Accounting-software subscription is billed by its vendor." }),
@@ -70,9 +72,9 @@ export const OPTIONAL_SERVICES: OptionalServiceRule[] = [
   o("int-custom", "Custom integration", "Integrations", "Integration requiring bespoke engineering.", { oneTimePrice: { minimum: 20000, maximum: 60000 }, complexity: 5, manualReviewRequired: true, pricingStatus: "manual-review-required" }),
 
   // Reporting and Automation
-  o("rep-custom-report", "Custom report", "Reporting & Automation", "A report designed for the client's format.", { oneTimePrice: { minimum: 4000, maximum: 10000 } }),
+  o("rep-custom-report", "Custom report", "Reporting & Automation", "A report designed for the client's format.", { oneTimePrice: { minimum: 5000, maximum: 20000 } }),
   o("rep-custom-dashboard", "Custom dashboard", "Reporting & Automation", "Dashboard cards and charts for the client's KPIs.", { oneTimePrice: { minimum: 6000, maximum: 15000 } }),
-  o("rep-auto-reminders", "Automated reminders", "Reporting & Automation", "Scheduled reminders for follow-ups and renewals.", { oneTimePrice: { minimum: 4000, maximum: 10000 } }),
+  o("rep-auto-reminders", "Automated reminders", "Reporting & Automation", "Scheduled reminders for follow-ups and renewals.", { oneTimePrice: { minimum: 4000, maximum: 15000 } }),
   o("rep-approval-workflow", "Approval workflow", "Reporting & Automation", "Additional approval chains beyond the standard flow.", { oneTimePrice: { minimum: 6000, maximum: 15000 }, complexity: 3 }),
   o("rep-scheduled-report", "Scheduled report", "Reporting & Automation", "Reports generated and sent on a schedule.", { oneTimePrice: { minimum: 4000, maximum: 10000 } }),
   o("rep-advanced-analytics", "Advanced analytics", "Reporting & Automation", "Deeper analysis views across branches and periods.", { oneTimePrice: { minimum: 10000, maximum: 25000 }, complexity: 4 }),

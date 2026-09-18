@@ -277,9 +277,12 @@ estimates** from the same catalog the demos use. Every service offer is priceabl
   (unit-tested); `store/pricingStorage.ts` persists everything under the
   `bizsolutions.pricing.*` localStorage keys with schema versioning.
 - **Editing prices**: use Pricing Administration in the app (stored on-device), or edit
-  the seed files in `src/pricing/config/` and rebuild. **All seed amounts are internal
-  placeholders (`pricingSource: "Internal placeholder — owner verification required"`)
-  — review them before using estimates with real clients.**
+  the seed files in `src/pricing/config/` and rebuild. Seed amounts for Shared and
+  Configured SaaS, the 20 modules, per-user charges, ten common optional services, and
+  the Basic/Standard/Priority support plans were owner-reviewed on 2026-09-18 against
+  Philippine market research (price table `owner-2026.09.18`). Custom-built,
+  white-label, and exclusive delivery models and the remaining optional services are
+  still internal placeholders. Estimates are preliminary ranges, never quotations.
 - **Safety**: estimates are labeled preliminary and are not binding quotations; sensitive
   selections (lending, government, high-risk services, payment/custom integrations,
   source-code transfer) force a "Manual Technical Review Required" state that blocks the

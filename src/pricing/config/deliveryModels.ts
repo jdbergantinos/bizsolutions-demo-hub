@@ -1,7 +1,8 @@
 import type { DeliveryModelRule } from "../types";
 
-// Seed values are INTERNAL PLACEHOLDERS, not researched market prices.
-// pricingSource: "Internal placeholder — owner verification required"
+// Shared SaaS and Configured SaaS base fees: owner-approved 2026-09-18 from
+// Philippine market research (see PRICE_TABLE_VERSION in pricingSettings.ts).
+// Custom-built, white-label, and exclusive builds remain INTERNAL PLACEHOLDERS.
 
 export const DELIVERY_MODELS: DeliveryModelRule[] = [
   {
@@ -26,8 +27,8 @@ export const DELIVERY_MODELS: DeliveryModelRule[] = [
     sourceCodeAvailability: "Not available",
     exclusivity: "None — shared platform",
     maintenanceResponsibility: "Agency",
-    baseSetup: { minimum: 15000, maximum: 30000 },
-    baseMonthly: { minimum: 2500, maximum: 4000 },
+    baseSetup: { minimum: 6000, maximum: 12000 },
+    baseMonthly: { minimum: 800, maximum: 1200 },
     moduleSetupFactor: 0.6,
     moduleMonthlyFactor: 1.0,
   },
@@ -52,8 +53,8 @@ export const DELIVERY_MODELS: DeliveryModelRule[] = [
     sourceCodeAvailability: "Not available",
     exclusivity: "None — shared platform",
     maintenanceResponsibility: "Agency",
-    baseSetup: { minimum: 35000, maximum: 60000 },
-    baseMonthly: { minimum: 3500, maximum: 6000 },
+    baseSetup: { minimum: 25000, maximum: 45000 },
+    baseMonthly: { minimum: 1500, maximum: 2500 },
     moduleSetupFactor: 1.0,
     moduleMonthlyFactor: 1.1,
   },

@@ -184,8 +184,8 @@ export function SettingsPage() {
           <Calculator className="h-4 w-4" /> Pricing
         </h2>
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-          Pricing values are initial internal estimates and require owner review before use with
-          clients.
+          Pricing ranges were owner-reviewed on the date below. Estimates remain preliminary and
+          are never binding quotations.
         </p>
         <dl className="mt-2 space-y-2 text-sm">
           <Row label="Price-table version">{loadPricingSettings().priceTableVersion}</Row>

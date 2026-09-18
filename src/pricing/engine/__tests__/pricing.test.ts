@@ -210,7 +210,7 @@ describe("package generation", () => {
 describe("module pricing", () => {
   it("resolves overrides for seed industries and falls back to module defaults", () => {
     const overridden = calculateModulePrice(RETAIL_INVENTORY, rules)!;
-    expect(overridden.setup.minimum).toBe(20000); // seed override
+    expect(overridden.setup.minimum).toBe(14000); // seed override
     const generic = calculateModulePrice(RETAIL_LOYALTY, rules)!;
     expect(generic.setup).toEqual(rules.modulePricing.find((m) => m.module === "membership")!.setupPrice);
   });

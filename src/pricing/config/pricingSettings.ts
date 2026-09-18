@@ -7,15 +7,18 @@ import { OPTIONAL_SERVICES } from "./optionalServices";
 import { SUPPORT_PLANS } from "./supportPlans";
 import { INDUSTRY_RISK } from "./industryRiskRules";
 
-export const PRICE_TABLE_VERSION = "seed-1.0.0";
+export const PRICE_TABLE_VERSION = "owner-2026.09.18";
 
 /**
- * All seed amounts are internal placeholders — NOT researched Philippine
- * market pricing. Settings shows the owner-review warning for this reason.
+ * Owner-approved 2026-09-18 from Philippine market research. Monthly software,
+ * per-user, and per-branch ranges rest on published vendor prices; setup, optional
+ * services, and support retainers rest on agency labor-hour assumptions and should
+ * be revisited once real implementation hours are known. Custom-built, white-label,
+ * and exclusive delivery models remain internal placeholders.
  */
 export const SEED_PRICING_RULES: PricingRules = {
   version: PRICE_TABLE_VERSION,
-  pricingSource: "Internal placeholder — owner verification required",
+  pricingSource: "Owner-approved 2026-09-18 from Philippine market research; preliminary ranges, revisit after real implementation hours",
   deliveryModels: DELIVERY_MODELS,
   configurationLevels: CONFIGURATION_LEVELS,
   businessSizes: BUSINESS_SIZES,
@@ -26,7 +29,7 @@ export const SEED_PRICING_RULES: PricingRules = {
   industryRisk: INDUSTRY_RISK,
   defaultIndustryRiskPctWhenCautioned: 8,
   userBranchRules: {
-    extraUserMonthly: { minimum: 150, maximum: 250 },
+    extraUserMonthly: { minimum: 250, maximum: 500 },
     extraBranchMonthly: { minimum: 800, maximum: 1500 },
     extraBranchSetup: { minimum: 5000, maximum: 10000 },
   },
@@ -56,7 +59,7 @@ export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
   defaultConfigurationLevel: "configured",
   internalPin: "",
   priceTableVersion: PRICE_TABLE_VERSION,
-  lastPriceReviewDate: "",
+  lastPriceReviewDate: "2026-09-18",
   thirdPartyDisclaimer:
     "Third-party costs (hosting providers, domain fees, SMS usage, email services, payment-gateway fees, app-store fees, third-party APIs, accounting or e-commerce subscriptions, and other external licenses) are not included unless explicitly stated.",
   defaultAssumptions: [
