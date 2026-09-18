@@ -71,15 +71,19 @@ All testing used fictional sample data only. No real prospect information was us
   and the renamed JavaScript bundle changed; `.nojekyll`, icons, manifest, and CSS are
   identical to the previous deployment.
 
-### Installed-phone verification — pending (John)
+### Installed-phone verification (completed by John on 2026-09-18)
 
-1. Open the installed app online; accept the **"Update available"** prompt.
-2. Navigate: Home → Industries → open any industry → open a service → **Demo** → back.
-   Every screen should load; no blank page.
-3. Pricing Configurator → New estimate → Next through two or three steps → Previous.
-4. Type a wrong address by hand, e.g. `…/#/nothing-here`: the "Page not found" message
-   should appear and the bottom navigation should still work.
-5. Airplane mode: close and reopen the app; it should open and navigate normally.
+All five checks **passed**, as reported by John after performing them on the installed
+device:
+
+1. **Update prompt — passed.** The installed app showed the update notice and restarted
+   on the new version.
+2. **Navigation — passed.** Home → Industries → industry → service → Demo → back; every
+   screen loaded, no blank page.
+3. **Configurator — passed.** New estimate, Next through several steps, then Previous.
+4. **Unknown address — passed.** A hand-typed wrong address showed "Page not found" and
+   the bottom navigation still worked.
+5. **Offline — passed.** In Airplane mode the app reopened and navigated normally.
 
 ## Rollback
 
@@ -90,7 +94,7 @@ All testing used fictional sample data only. No real prospect information was us
 
 ## Final release status
 
-**Deployed; phone verification pending.**
+**Verified and operational.**
 
 | Check | Result |
 | --- | --- |
@@ -102,8 +106,8 @@ All testing used fictional sample data only. No real prospect information was us
 | Runtime preview, all 37 routes | Passed |
 | GitHub Pages build | Passed (`built`, no error) |
 | Live-site HTTP fetch | Not performed (permission-blocked in session) |
-| Installed-phone verification | Pending |
-| Offline verification | Pending (phone) |
+| Installed-phone verification | Passed |
+| Offline verification | Passed (phone) |
 | Rollback reference | `gh-pages-rollback-2026-09-18-2` → `0c9b226` |
 
 ## Remaining limitations
