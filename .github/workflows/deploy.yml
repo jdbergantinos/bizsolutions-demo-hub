@@ -1,0 +1,133 @@
+name: Deploy to GitHub Pages
+
+# One-click, owner-triggered deployment. Nothing deploys automatically:
+# start this workflow by hand from the Actions tab (or `gh workflow run deploy.yml`).
+#
+# What it does, in order:
+#   1. npm ci, unit tests, type-check, production build (same checks as CI).
+#   2. Tags the currently live gh-pages commit as the rollback point
+#      (gh-pages-rollback-<date>-run<number>) and pushes the tag.
+#   3. Replaces the gh-pages branch contents with the fresh dist/ (keeping .nojekyll)
+#      and pushes one normal commit. If the build is identical to what is live,
+#      it stops without committing.
+#   4. Writes a summary: source commit, deploy commit, rollback tag, bundle name.
+#
+# The release record in docs/releases/ and the installed-phone checks remain manual.
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: "Short release name for the deploy commit (e.g. 'Owner-approved pricing ranges')"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry run: build and verify, but do not push the tag or gh-pages"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-gh-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Type-check
+        run: npx tsc -p tsconfig.app.json --noEmit
+
+      - name: Production build
+        run: |
+          node scripts/generate-icons.mjs
+          npx vite build
+          test -f dist/index.html
+          echo "BUNDLE=$(basename dist/assets/index-*.js)" >> "$GITHUB_ENV"
+
+      - name: Fetch gh-pages and tag the rollback point
+        id: rollback
+        run: |
+          git fetch origin gh-pages
+          LIVE=$(git rev-parse origin/gh-pages)
+          TAG="gh-pages-rollback-$(date -u +%Y-%m-%d)-run${{ github.run_number }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG" "$LIVE" -m "Rollback reference: gh-pages deployment live before '${{ inputs.release_name }}' (run ${{ github.run_number }})"
+          echo "live=$LIVE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "Dry run: tag $TAG created locally, not pushed."
+          else
+            git push origin "$TAG"
+          fi
+
+      - name: Stage the build on gh-pages
+        id: stage
+        run: |
+          git worktree add --detach ghp origin/gh-pages
+          cd ghp
+          git rm -rq .
+          cp -r ../dist/. .
+          touch .nojekyll
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "gh-pages already matches this build; nothing to deploy."
+          else
+            git commit -q -m "Deploy: ${{ inputs.release_name }} (main ${GITHUB_SHA::7})"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "deploy=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            git --no-pager show --stat --oneline HEAD | head -20
+          fi
+
+      - name: Push gh-pages
+        if: steps.stage.outputs.changed == 'true' && inputs.dry_run != true
+        run: |
+          cd ghp
+          git push origin HEAD:gh-pages
+
+      - name: Summary
+        run: |
+          {
+            echo "## Deploy: ${{ inputs.release_name }}"
+            echo
+            if [ "${{ inputs.dry_run }}" = "true" ]; then echo "**DRY RUN — nothing was pushed.**"; echo; fi
+            echo "| Item | Value |"
+            echo "| --- | --- |"
+            echo "| Source commit (main) | \`${GITHUB_SHA::7}\` |"
+            echo "| Previously live (gh-pages) | \`$(echo ${{ steps.rollback.outputs.live }} | cut -c1-7)\` |"
+            echo "| Rollback tag | \`${{ steps.rollback.outputs.tag }}\` |"
+            if [ "${{ steps.stage.outputs.changed }}" = "true" ]; then
+              echo "| New gh-pages commit | \`$(echo ${{ steps.stage.outputs.deploy }} | cut -c1-7)\` |"
+            else
+              echo "| New gh-pages commit | none — live site already matched this build |"
+            fi
+            echo "| Bundle | \`$BUNDLE\` |"
+            echo
+            echo "Next: wait for the GitHub Pages build, then run the installed-phone checks and write the release record in \`docs/releases/\`."
+          } >> "$GITHUB_STEP_SUMMARY"
