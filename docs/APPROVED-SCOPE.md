@@ -124,10 +124,10 @@ of this scope.
 - The privacy posture for real prospect data stored on the device.
 - Whether deployment should remain manual or later use CI/CD.
 - Whether and when to update dependencies with known vulnerabilities.
-  See [ADR 0001](decisions/0001-defer-react-router-7-upgrade.md) (accepted
-  2026-09-18): the two moderate React Router 6 advisories are accepted as low
-  risk for the current offline, single-user deployment; the React Router 7
-  upgrade is deferred to a separately approved task.
+  See [ADR 0001](decisions/0001-defer-react-router-7-upgrade.md): the two moderate
+  React Router 6 advisories were accepted as low risk on 2026-09-18, then cleared the
+  same day when the React Router 7 upgrade merged (PR #12, `main` `38999f8`). The
+  ADR is marked superseded. The live deployment picks this up at the next release.
 - When real approved pricing values should replace the placeholders.
   Answered in part on 2026-09-18: see the
   [Owner-Approved Pricing release record](releases/2026-09-18-approved-pricing.md).
