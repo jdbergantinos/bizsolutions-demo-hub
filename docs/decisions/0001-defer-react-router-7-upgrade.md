@@ -1,7 +1,7 @@
 # ADR 0001: Defer the React Router 7 upgrade and accept two moderate advisories
 
 Date: 2026-09-18
-Status: proposed - awaiting John's approval
+Status: accepted (John, 2026-09-18)
 Decider: John
 Governance link: none - technical decision. Related open question: APPROVED-SCOPE.md §8, "Whether and when to update dependencies with known vulnerabilities."
 
