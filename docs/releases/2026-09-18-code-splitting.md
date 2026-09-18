@@ -70,18 +70,21 @@ All testing used fictional sample data only. No real prospect information was us
 - **Direct HTTP fetch of the live page — not performed** (session permission rules block
   outbound fetches to the live URL).
 
-### Installed-phone verification — pending (John)
+### Installed-phone verification (completed by John on 2026-09-18)
 
-1. Open the installed app online; accept the **"Update available"** prompt. The update
-   downloads the new chunks in the background before the prompt appears.
-2. Navigate: Home → Industries → an industry → a service → **Demo** → back. The first
-   visit to a screen may show three pulsing dots for a moment; every screen should load.
-3. Pricing Configurator → New estimate → Next twice → Previous.
-4. **Airplane mode**, then close and reopen the app. Open **Settings**, then **Discovery**,
-   then an industry and a **Demo** you did *not* open in step 2. All must load offline —
-   this proves the precache holds every chunk, not just the ones already visited.
-5. Airplane mode off. Still inside the app, open one more screen you have not opened
-   today. It should load normally (no "needs a quick reload" message).
+All five checks **passed**, as reported by John after performing them on the installed
+device:
+
+1. **Update prompt — passed.** The installed app showed the update notice and restarted
+   on the new version.
+2. **Navigation — passed.** Home → Industries → industry → service → Demo → back; every
+   screen loaded.
+3. **Configurator — passed.** New estimate, Next twice, Previous.
+4. **Offline, including unvisited screens — passed.** In Airplane mode, after closing and
+   reopening the app, Settings, Discovery, an industry, and a Demo not opened in step 2
+   all loaded. This confirms the precache holds every chunk, not only visited ones.
+5. **Post-update navigation — passed.** Back online, a screen not opened earlier that day
+   loaded normally; the "needs a quick reload" fallback did not appear.
 
 ## Rollback
 
@@ -92,7 +95,7 @@ All testing used fictional sample data only. No real prospect information was us
 
 ## Final release status
 
-**Deployed; phone verification pending.**
+**Verified and operational.**
 
 | Check | Result |
 | --- | --- |
@@ -104,8 +107,8 @@ All testing used fictional sample data only. No real prospect information was us
 | Deploy workflow (first production run) | Passed |
 | GitHub Pages build | Passed (`built`, no error) |
 | Live-site HTTP fetch | Not performed (permission-blocked in session) |
-| Installed-phone verification | Pending |
-| Offline verification (including an unvisited screen) | Pending (phone) |
+| Installed-phone verification | Passed |
+| Offline verification (including an unvisited screen) | Passed (phone) |
 | Rollback reference | `gh-pages-rollback-2026-09-18-run2` → `a96356e` |
 
 ## Remaining limitations
