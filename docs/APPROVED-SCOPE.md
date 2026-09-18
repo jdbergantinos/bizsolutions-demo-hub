@@ -105,8 +105,13 @@ of this scope.
 ## 7. Current Pricing Boundary
 
 - The pricing engine exists and is unit-tested.
-- **Current amounts remain internal placeholders** until John approves replacement
-  values.
+- **Amounts are owner-approved preliminary ranges** as of 2026-09-18 for Shared and
+  Configured SaaS, the 20 modules, per-user charges, ten common optional services, and
+  the Basic/Standard/Priority support plans (see the
+  [Owner-Approved Pricing release record](releases/2026-09-18-approved-pricing.md)).
+  Custom-built, white-label, and exclusive delivery models, the remaining optional
+  services, and the Dedicated/Custom SLA plans remain internal placeholders until John
+  approves replacement values.
 - Estimates must remain clearly preliminary and range-based, never presented as
   quotations or commitments.
 - Internal pricing worksheets and pricing decisions must remain **outside** this
@@ -124,6 +129,13 @@ of this scope.
   risk for the current offline, single-user deployment; the React Router 7
   upgrade is deferred to a separately approved task.
 - When real approved pricing values should replace the placeholders.
+  Answered in part on 2026-09-18: see the
+  [Owner-Approved Pricing release record](releases/2026-09-18-approved-pricing.md).
+  Shared/Configured SaaS, all 20 modules, per-user charges, ten common optional
+  services, and the Basic/Standard/Priority support plans now carry owner-approved
+  ranges (price table `owner-2026.09.18`). Custom-built, white-label, and exclusive
+  delivery models, the remaining optional services, and the Dedicated/Custom SLA
+  plans are still placeholders.
 
 ## 9. Current Release State
 
